@@ -15,6 +15,7 @@
 - [Windows環境の準備](docs/setup-windows.md)
 - [M365 Copilotと一緒にコードを書く](docs/copilot-guide.md)
 - [講師用進行ガイド](docs/instructor-guide.md)
+- [Kaggle Titanic 日本語ガイド](docs/kaggle-titanic-guide.md)
 - [各回の教材](lessons/)
 - [教材データの説明](data/README.md)
 

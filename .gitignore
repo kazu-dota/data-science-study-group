@@ -9,5 +9,6 @@ workspace/*
 !workspace/README.md
 
 data/private/
+data/kaggle/
 outputs/
 work/

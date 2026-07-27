@@ -71,7 +71,11 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
 
 
 def write_notebook(folder: str, content: dict) -> None:
-    path = LESSONS_DIR / folder / "lesson.ipynb"
+    write_named_notebook(folder, "lesson.ipynb", content)
+
+
+def write_named_notebook(folder: str, filename: str, content: dict) -> None:
+    path = LESSONS_DIR / folder / filename
     for index, cell in enumerate(content["cells"]):
         cell["id"] = f"cell-{index:02d}"
     path.write_text(json.dumps(content, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
@@ -268,8 +272,8 @@ def build_notebooks() -> None:
             code("""
                 columns = ["sample_id", "solvent", "temperature_c", "yield_pct", "active"]
                 display(df.loc[:4, columns])
-                high_yield = df.loc[df["yield_pct"] >= 75, columns]
-                print("収率75%以上:", len(high_yield), "件")
+                high_yield = df.loc[df["yield_pct"] >= 60, columns]
+                print("収率60%以上:", len(high_yield), "件")
                 high_yield.head()
             """),
             markdown("""## TRY：カテゴリごとに比べる"""),
@@ -294,6 +298,12 @@ def build_notebooks() -> None:
                 import matplotlib.pyplot as plt
                 import seaborn as sns
                 sns.set_theme(style="whitegrid", font="sans-serif")
+                from matplotlib import font_manager
+                available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+                for candidate in ["Yu Gothic", "Meiryo", "Hiragino Sans", "Noto Sans CJK JP"]:
+                    if candidate in available_fonts:
+                        plt.rcParams["font.family"] = candidate
+                        break
             """),
             markdown("""## TRY：1変数の分布を見る"""),
             code("""
@@ -411,6 +421,7 @@ def build_notebooks() -> None:
                 import numpy as np
                 import pandas as pd
                 import matplotlib.pyplot as plt
+                from matplotlib import font_manager
                 from sklearn.model_selection import train_test_split
                 from sklearn.impute import SimpleImputer
                 from sklearn.pipeline import make_pipeline
@@ -419,6 +430,12 @@ def build_notebooks() -> None:
                 from sklearn.tree import DecisionTreeRegressor
                 from sklearn.ensemble import RandomForestRegressor
                 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+                available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+                for candidate in ["Yu Gothic", "Meiryo", "Hiragino Sans", "Noto Sans CJK JP"]:
+                    if candidate in available_fonts:
+                        plt.rcParams["font.family"] = candidate
+                        break
 
                 features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
                 X_train, X_valid, y_train, y_valid = train_test_split(df[features], df["yield_pct"], test_size=0.25, random_state=42)
@@ -470,11 +487,18 @@ def build_notebooks() -> None:
                 import numpy as np
                 import pandas as pd
                 import matplotlib.pyplot as plt
+                from matplotlib import font_manager
                 from sklearn.model_selection import train_test_split
                 from sklearn.impute import SimpleImputer
                 from sklearn.pipeline import make_pipeline
                 from sklearn.linear_model import LogisticRegression
                 from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, precision_score, recall_score, f1_score
+
+                available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+                for candidate in ["Yu Gothic", "Meiryo", "Hiragino Sans", "Noto Sans CJK JP"]:
+                    if candidate in available_fonts:
+                        plt.rcParams["font.family"] = candidate
+                        break
 
                 features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
                 X_train, X_valid, y_train, y_valid = train_test_split(df[features], df["active"], test_size=0.25, random_state=42, stratify=df["active"])
@@ -764,7 +788,7 @@ def build_notebooks() -> None:
                     ("数値", SimpleImputer(strategy="median"), numeric),
                     ("カテゴリ", Pipeline([("補完", SimpleImputer(strategy="most_frequent")), ("one_hot", OneHotEncoder(handle_unknown="ignore"))]), categorical),
                 ])
-                model=Pipeline([("前処理", preprocess), ("モデル", RandomForestClassifier(n_estimators=300, max_depth=6, random_state=42))])
+                model=Pipeline([("前処理", preprocess), ("モデル", RandomForestClassifier(n_estimators=300, max_depth=3, class_weight="balanced", random_state=42))])
                 X_train, X_valid, y_train, y_valid=train_test_split(improved_train[features], improved_train[target], test_size=0.25, random_state=42, stratify=improved_train[target])
                 model.fit(X_train, y_train)
                 print("改善案のローカルF1:", round(f1_score(y_valid, model.predict(X_valid)), 3))
@@ -797,6 +821,83 @@ def build_notebooks() -> None:
             """),
             markdown("""## 1人5分のShow & Tell\n\n次のうち1つを選びます。\n\n- 面白かった図\n- 改善した実験\n- 悪化したが学びがあった実験\n- Copilotへの良かった聞き方\n- 自社テーマへ持ち帰りたい考え方\n\n完成度は競いません。"""),
             markdown("""## 自社テーマ1枚シート\n\n機密情報や実データは書かず、一般化した表現で埋めます。\n\n| 項目 | 記入内容 |\n|---|---|\n| 利用者と判断 | 誰が何を決めるか |\n| 予測時点 | いつ予測するか |\n| 目的変数 | 何を予測するか |\n| 説明変数候補 | その時点で得られる情報 |\n| 使えない情報 | 未来情報、測定後情報、機密上使えない情報 |\n| 評価方法 | 指標と分割単位 |\n| 単純な基準 | 平均、最頻値、現在の判断方法など |\n| 最初の実験 | 1〜2週間で試せる小さな範囲 |\n\n## 最後の確認\n\n良いモデルを作ることより、**何を予測し、どう評価し、何を1つ変えたか説明できること**を持ち帰ります。""")
+        ]
+    ))
+
+    write_named_notebook("13-kaggle-kickoff", "titanic_optional.ipynb", notebook(
+        "任意実践：Kaggle Titanicへ提出する",
+        "模擬コンペで覚えた手順を、実際のKaggle過去コンペで再現できるか。",
+        [
+            markdown("""## 事前準備\n\n1. Kaggleの`Titanic - Machine Learning from Disaster`を開く\n2. `Join Competition`からルールへ同意する\n3. `Data`画面からデータをダウンロードする\n4. ZIP内の`train.csv`、`test.csv`、`gender_submission.csv`を次へ置く\n\n```text\ndata/kaggle/titanic/\n```\n\nこのフォルダはGit管理対象外です。会社のデータや認証情報を置かないでください。"""),
+            code("""
+                import pandas as pd
+
+                titanic_dir = DATA / "kaggle" / "titanic"
+                train_path = titanic_dir / "train.csv"
+                test_path = titanic_dir / "test.csv"
+                ready = train_path.exists() and test_path.exists()
+                if not ready:
+                    print("Kaggleからtrain.csvとtest.csvをダウンロードし、次へ置いてください:")
+                    print(titanic_dir)
+                else:
+                    train = pd.read_csv(train_path)
+                    test = pd.read_csv(test_path)
+                    print("train:", train.shape, "test:", test.shape)
+                    display(train.head(3))
+            """),
+            markdown("""## ベースラインを検証する\n\n評価指標はaccuracyです。`Survived`を目的変数にし、提出に存在する列だけを使います。"""),
+            code("""
+                if ready:
+                    from sklearn.model_selection import train_test_split
+                    from sklearn.compose import ColumnTransformer
+                    from sklearn.pipeline import Pipeline
+                    from sklearn.impute import SimpleImputer
+                    from sklearn.preprocessing import OneHotEncoder
+                    from sklearn.ensemble import RandomForestClassifier
+                    from sklearn.metrics import accuracy_score
+
+                    target = "Survived"
+                    features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
+                    numeric = ["Age", "SibSp", "Parch", "Fare"]
+                    categorical = ["Pclass", "Sex", "Embarked"]
+                    preprocess = ColumnTransformer([
+                        ("数値", SimpleImputer(strategy="median"), numeric),
+                        ("カテゴリ", Pipeline([
+                            ("補完", SimpleImputer(strategy="most_frequent")),
+                            ("one_hot", OneHotEncoder(handle_unknown="ignore")),
+                        ]), categorical),
+                    ])
+                    model = Pipeline([
+                        ("前処理", preprocess),
+                        ("モデル", RandomForestClassifier(n_estimators=250, max_depth=5, random_state=42)),
+                    ])
+                    X_train, X_valid, y_train, y_valid = train_test_split(
+                        train[features], train[target], test_size=0.25, random_state=42, stratify=train[target]
+                    )
+                    model.fit(X_train, y_train)
+                    print("ローカル検証accuracy:", round(accuracy_score(y_valid, model.predict(X_valid)), 3))
+                else:
+                    print("データ準備後に、このセルをもう一度実行します。")
+            """),
+            markdown("""## 提出CSVを作る\n\n列名と行数を機械的に検査してから、Kaggleの`Submit Predictions`へアップロードします。"""),
+            code("""
+                if ready:
+                    model.fit(train[features], train[target])
+                    submission = pd.DataFrame({
+                        "PassengerId": test["PassengerId"],
+                        "Survived": model.predict(test[features]),
+                    })
+                    assert list(submission.columns) == ["PassengerId", "Survived"]
+                    assert len(submission) == len(test)
+                    assert submission["PassengerId"].is_unique
+                    output = ROOT / "workspace" / "titanic_submission.csv"
+                    submission.to_csv(output, index=False)
+                    print("提出ファイル:", output)
+                    display(submission.head())
+                else:
+                    print("データ準備後に、このセルをもう一度実行します。")
+            """),
+            markdown("""## 提出後\n\nLeaderboardの点数だけで良し悪しを決めず、ローカル検証、変更点、結果を実験ログへ残します。Kaggle上の他者Notebookは、自分のベースラインを提出した後に読みます。""")
         ]
     ))
 

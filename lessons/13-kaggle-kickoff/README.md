@@ -20,3 +20,6 @@
 ```
 
 既存教材は[教材候補一覧](../../docs/resources.md#第13回kaggleに入って最初の提出を作る)を参照します。
+
+- 全員：模擬コンペの[lesson.ipynb](lesson.ipynb)
+- Kaggleを利用できる人：[Titanic日本語ガイド](../../docs/kaggle-titanic-guide.md)と[titanic_optional.ipynb](titanic_optional.ipynb)
