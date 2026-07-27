@@ -4,6 +4,10 @@
 
 講義だけでなく、毎回Pythonコードを動かし、結果の違いや失敗を5人で共有します。自習は任意です。同期回だけでも次へ進めるよう、Notebookには共通課題と発展課題を用意します。
 
+![化学研究からデータ、モデル、予測へ進む5人の学習イメージ](assets/images/course-journey.png)
+
+教材と進行は日本語を基本にします。外部の英語公式ドキュメントは、講師が必要箇所を確認するための参考資料として扱います。概念は文章だけでなく、図、Notebookの出力、身近な化学研究の例を組み合わせて説明します。
+
 ## まず見る場所
 
 - [全15回の進め方](docs/course-plan.md)
@@ -14,11 +18,14 @@
 
 ## ローカル環境
 
-Windows、VS Code、Git for Windows、`uv`を標準環境とします。GitHubアカウントは不要です。
+Windows、VS Code、`uv`を標準環境とします。GitHubアカウントとGitのインストールは不要です。
+
+1. GitHub画面右上の緑色の`Code`を押す
+2. `Download ZIP`を選ぶ
+3. ZIPを展開し、展開したフォルダをVS Codeで開く
+4. VS Codeのターミナルで次を実行する
 
 ```powershell
-git clone https://github.com/kazu-dota/data-science-study-group.git
-cd data-science-study-group
 uv sync
 uv run python scripts/check_environment.py
 ```
@@ -37,6 +44,12 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 - `CHANGE`：値や列を少し変更する
 - `CHALLENGE`：興味のある人向けの自由研究
 - `ASK COPILOT`：M365 Copilotへ相談してみる
+
+## 図の読み方
+
+- 雰囲気や全体像をつかむ場面では、オリジナルのイラストを使います
+- 手順や用語を正確に区別する場面では、日本語ラベル付きの図を使います
+- 図だけで結論を決めず、実際のデータとNotebookの結果で確かめます
 
 ## 全15回
 
