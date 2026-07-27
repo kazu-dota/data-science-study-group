@@ -53,9 +53,15 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 - `SELF-STUDY`：任意の30～60分自習
 - `ASK COPILOT`：M365 Copilotへ相談してみる
 
-各Notebookには、学習目標、重要用語、実行前の予想、結果を見る観点、よくある誤り、
-回ごとに異なる深掘りコード、任意自習、振り返りの3問を収録しています。
-初学者は`CORE`と`TRY`を優先し、経験者は同じNotebookの`DEEP DIVE`へ進みます。
+各Notebookには、学習目標、重要用語、実行前の予想、`CORE`の本線と`CORE深掘り`、
+結果を見る観点、複数セルの`DEEP DIVE`、よくある誤り、任意自習、振り返りの3問を収録しています。
+`CORE`でも関数化・交差検証・ベースライン比較まで踏み込み、`DEEP DIVE`では
+学習曲線・ネストした交差検証・確率の較正・スタッキング・特徴量選択など、
+評価の厳密さとモデルの多様さを一段深く扱います。
+初学者は`CORE`と`TRY`を優先し、経験者は同じNotebookの`CORE深掘り`と`DEEP DIVE`へ進みます。
+
+一部の`DEEP DIVE`はXGBoostやOptunaを任意で使えますが、未導入でもscikit-learnだけで
+最後まで実行できます。使いたい人だけ `uv sync --extra advanced` を実行します。
 
 ## 図の読み方
 

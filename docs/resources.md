@@ -233,6 +233,15 @@ RDKitは初心者全員の必須操作にはしない。講師が計算済みの
 
 - [『Kaggleで勝つデータ分析の技術』](https://gihyo.jp/book/2019/978-4-297-10843-4) — バリデーション、特徴量、チューニングの考え方を参照する。2019年刊のため、コードやライブラリ仕様は現行公式ドキュメントで確認する。
 
+## 任意の発展ライブラリ
+
+一部の`DEEP DIVE`は、次の任意ライブラリがあれば追加で試せます。未導入でもscikit-learnの代替で本編は完走できます。
+
+- 使う場合のみ `uv sync --extra advanced` を実行する（`xgboost`、`optuna`）。
+- [XGBoost Documentation](https://xgboost.readthedocs.io/) — 第10回のモデル比較で、勾配ブースティング専用実装を任意で追加する。
+- [Optuna Documentation](https://optuna.readthedocs.io/) — 第12回の改善サイクルで、ランダム探索の代わりにベイズ的な探索を任意で試す。
+- [scikit-learn: HistGradientBoosting](https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting) — 上記が無い環境の標準的な代替。
+
 ## Udemyの扱い
 
 現時点では特定コースを必須指定しません。5人のPython経験差が大きく、同期回とKaggle Learnで基礎を揃えられるためです。希望者が多い場合のみ、次の条件で1コースを選びます。
