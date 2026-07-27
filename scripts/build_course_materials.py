@@ -343,53 +343,62 @@ def write_notebook(folder: str, content: dict) -> None:
     pitfalls = "\n".join(f"- {item}" for item in meta["pitfalls"])
     self_study = "\n".join(f"- {item}" for item in meta["self_study"])
     check = "\n".join(f"{index}. {item}" for index, item in enumerate(meta["check"], start=1))
+    # 複数行の変数を差し込む前にテンプレートをdedentする。
+    # f-string内で多行文字列を差し込むと、差し込んだ2行目以降がインデント0になり、
+    # textwrap.dedentが共通インデントを検出できず、テンプレート側の字下げが残るため。
     guide = markdown(
-        f"""
-        ## この回でできるようになること
+        dedent(
+            """
+            ## この回でできるようになること
 
-        {objectives}
+            {objectives}
 
-        ### 進み方
+            ### 進み方
 
-        `CORE`は同期90分で扱う本線、`DEEP DIVE`は時間があれば扱う深掘り、
-        `SELF-STUDY`は任意自習です。すべて終わらなくても次回へ進めます。
+            `CORE`は同期90分で扱う本線、`DEEP DIVE`は時間があれば扱う深掘り、
+            `SELF-STUDY`は任意自習です。すべて終わらなくても次回へ進めます。
 
-        ### 先に押さえる言葉
+            ### 先に押さえる言葉
 
-        {terms}
+            {terms}
 
-        > **実行前の30秒予想**：今日の問いに、今の言葉で仮の答えを書いてから始めます。
-        """
+            > **実行前の30秒予想**：今日の問いに、今の言葉で仮の答えを書いてから始めます。
+            """
+        ).format(objectives=objectives, terms=terms)
     )
     deep_dive_intro = markdown(
-        f"""
-        ## DEEP DIVE：結果を一段深く読む
+        dedent(
+            """
+            ## DEEP DIVE：結果を一段深く読む
 
-        次のセルは、数値を出して終わらず「どの条件で、なぜそう見えるか」を調べる発展です。
+            次のセルは、数値を出して終わらず「どの条件で、なぜそう見えるか」を調べる発展です。
 
-        ### 出力を見る観点
+            ### 出力を見る観点
 
-        {reading}
-        """
+            {reading}
+            """
+        ).format(reading=reading)
     )
     wrap_up = markdown(
-        f"""
-        ## よくある誤り
+        dedent(
+            """
+            ## よくある誤り
 
-        {pitfalls}
+            {pitfalls}
 
-        ## SELF-STUDY（任意・30〜60分）
+            ## SELF-STUDY（任意・30〜60分）
 
-        {self_study}
+            {self_study}
 
-        成果は完成したコードでなくても、予想・変更点・出力・解釈を4行で残せば十分です。
+            成果は完成したコードでなくても、予想・変更点・出力・解釈を4行で残せば十分です。
 
-        ## 振り返りチェック
+            ## 振り返りチェック
 
-        {check}
+            {check}
 
-        答えに詰まった項目が、次に見返す場所です。暗記ではなくNotebookの該当セルを指せればOKです。
-        """
+            答えに詰まった項目が、次に見返す場所です。暗記ではなくNotebookの該当セルを指せればOKです。
+            """
+        ).format(pitfalls=pitfalls, self_study=self_study, check=check)
     )
     content["cells"] = [content["cells"][0], content["cells"][1], guide, *content["cells"][2:], deep_dive_intro, code(DEEP_DIVE_CODE[folder]), wrap_up]
     write_named_notebook(folder, "lesson.ipynb", content)
@@ -739,7 +748,6 @@ def build_notebooks() -> None:
         [
             common_load_cell(),
             code("""
-                import numpy as np
                 import pandas as pd
                 import matplotlib.pyplot as plt
                 from matplotlib import font_manager
@@ -805,7 +813,6 @@ def build_notebooks() -> None:
         [
             common_load_cell(),
             code("""
-                import numpy as np
                 import pandas as pd
                 import matplotlib.pyplot as plt
                 from matplotlib import font_manager
@@ -1024,7 +1031,7 @@ def build_notebooks() -> None:
     ))
 
     write_notebook("13-kaggle-kickoff", notebook(
-        "第13回：模擬コンペで最初の提出を作る",
+        "第13回：Kaggleに入って最初の提出を作る",
         "コンペの説明を、ローカルの分析手順へどう翻訳するか。",
         [
             code("""
@@ -1077,7 +1084,7 @@ def build_notebooks() -> None:
     ))
 
     write_notebook("14-kaggle-improvement", notebook(
-        "第14回：模擬Kaggle改善会",
+        "第14回：Kaggle改善会",
         "限られた時間で、次に何を試すか。",
         [
             code("""

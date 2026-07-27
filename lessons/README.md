@@ -16,8 +16,8 @@
 | 10 | モデル対決 | [README](10-model-comparison/README.md) | [開く](10-model-comparison/lesson.ipynb) |
 | 11 | 化学の知識を特徴量にする | [README](11-feature-engineering/README.md) | [開く](11-feature-engineering/lesson.ipynb) |
 | 12 | 改善実験を小さく回す | [README](12-experiment-cycle/README.md) | [開く](12-experiment-cycle/lesson.ipynb) |
-| 13 | 模擬コンペで最初の提出を作る | [README](13-kaggle-kickoff/README.md) | [開く](13-kaggle-kickoff/lesson.ipynb) |
-| 14 | 模擬Kaggle改善会 | [README](14-kaggle-improvement/README.md) | [開く](14-kaggle-improvement/lesson.ipynb) |
+| 13 | Kaggleに入って最初の提出を作る | [README](13-kaggle-kickoff/README.md) | [開く](13-kaggle-kickoff/lesson.ipynb) |
+| 14 | Kaggle改善会 | [README](14-kaggle-improvement/README.md) | [開く](14-kaggle-improvement/lesson.ipynb) |
 | 15 | Show & Tell | [README](15-show-and-tell/README.md) | [開く](15-show-and-tell/lesson.ipynb) |
 
 ## 講師向け
