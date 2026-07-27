@@ -18,6 +18,271 @@ DATA_DIR = ROOT / "data"
 LESSONS_DIR = ROOT / "lessons"
 
 
+LESSON_META = {
+    "01-kickoff": {
+        "objectives": ["特徴量・目的変数・学習・予測を、画面上の入出力と結びつける", "クラス予測と確率予測を区別する", "設定を1つ変え、検証結果の変化を言葉にする"],
+        "terms": ["特徴量：予測時点でモデルへ渡す情報", "目的変数：予測したい答え", "学習：既知データから関係を推定する処理", "推論：学習済みモデルを未知データへ使う処理"],
+        "reading": ["正解率は未知データ役の検証データで確認する", "確率0.8は『必ず活性』ではなく、モデルの確信度として扱う", "設定変更の効果は同じ分割で比べる"],
+        "pitfalls": ["学習データの成績を実力だと思う", "1試料の予測だけでモデル全体を判断する", "良い数値が出るまで設定を無計画に変える"],
+        "self_study": ["任意の3試料について特徴量・予測クラス・確率を1表にする", "木の深さ2・4・8を比較し、どれを選ぶか2文で書く"],
+        "check": ["Xとyはそれぞれ何か", "fitとpredictは何をするか", "検証データが必要なのはなぜか"],
+    },
+    "02-python-with-copilot": {
+        "objectives": ["変数・リスト・辞書・条件分岐・繰り返し・関数を読める", "型と値を表示してコードの状態を確認する", "Copilotの提案を小さく検証する"],
+        "terms": ["値：文字列や数値などのデータ", "型：値に対して可能な操作の種類", "関数：入力から出力を作る処理のまとまり", "例外：処理を続けられない理由を伝える仕組み"],
+        "reading": ["コードは上から順に状態を変える", "エラーの末尾には原因に近い情報がある", "関数は代表値だけでなく境界値でも試す"],
+        "pitfalls": ["Notebookを途中から実行して変数がない", "Copilotの長い修正を一度に採用する", "エラー全文を読まずにセルを繰り返し実行する"],
+        "self_study": ["温度の単位変換関数へ型ヒントと説明文を足す", "正常値・負値・文字列の3ケースを試し、期待結果を先に書く"],
+        "check": ["listとdictはどう使い分けるか", "ifの条件がFalseのとき何が起こるか", "生成AIのコードを何で確認するか"],
+    },
+    "03-pandas": {
+        "objectives": ["初見データの形・型・欠損・要約統計を確認する", "locで列と条件を明示して抽出する", "groupbyとaggで比較表を作る"],
+        "terms": ["DataFrame：行と列を持つ表", "Series：DataFrameの1列に相当するデータ", "欠損値：未測定・不明など値が存在しない状態", "集約：複数行を件数や平均などへまとめる処理"],
+        "reading": ["平均だけでなく件数とばらつきを一緒に見る", "行番号とsample_idを混同しない", "カテゴリ別の差は因果関係とは限らない"],
+        "pitfalls": ["列の単位や定義を確認せず計算する", "欠損行を知らないまま自動で落とす", "件数が極端に少ない群の平均を強く信じる"],
+        "self_study": ["触媒×溶媒の件数・平均収率・標準偏差を表にする", "自分なら毎回使うデータ健康診断を5項目にまとめる"],
+        "check": ["shapeの2つの数は何か", "locの行条件と列指定はどこか", "groupby結果に件数が必要なのはなぜか"],
+    },
+    "04-eda": {
+        "objectives": ["単変量・二変量・群別の順でデータを見る", "欠損や外れ値を調査対象として扱う", "図から断定ではなく検証可能な仮説を作る"],
+        "terms": ["分布：値がどこにどれだけ存在するか", "外れ値：他と大きく異なる観測値", "相関：2変数が一緒に変化する程度", "EDA：モデル化前に品質と構造を探索する作業"],
+        "reading": ["軸・単位・件数を確認してから形を見る", "相関は非線形関係や群ごとの差を隠すことがある", "欠損の発生理由が予測時点と関係するか考える"],
+        "pitfalls": ["外れ値を自動削除する", "相関を因果と読む", "見栄えの良い図だけを選ぶ"],
+        "self_study": ["数値列の相関ヒートマップから仮説を1つ書く", "外れ値候補2件について確認先・残す場合・除く場合を整理する"],
+        "check": ["箱ひげ図で何が分かるか", "欠損率だけでは足りない理由は何か", "良い仮説に必要な次の確認は何か"],
+    },
+    "05-problem-framing": {
+        "objectives": ["利用者・判断・予測時点を1文にする", "目的変数と利用可能な説明変数を分ける", "業務上意味のあるベースラインと指標を決める"],
+        "terms": ["予測時点：モデルを実際に使う瞬間", "ベースライン：複雑なモデルと比較する単純な基準", "回帰：連続値を予測する問題", "分類：クラスやカテゴリを予測する問題"],
+        "reading": ["スコアより先に誰の判断をどう変えるかを確認する", "未来情報や測定後情報は高性能でも使えない", "誤りの種類ごとの業務コストを考える"],
+        "pitfalls": ["入手できる列をすべて使う", "目的変数が測定や運用で不安定", "精度目標だけで利用方法が決まっていない"],
+        "self_study": ["自社テーマを機密情報なしで7項目の問題設定へ落とす", "偽陽性・偽陰性または過大・過小予測のコストを書く"],
+        "check": ["誰が何を判断するモデルか", "予測時点で本当に得られる列はどれか", "単純基準を超えることにどんな価値があるか"],
+    },
+    "06-validation-leakage": {
+        "objectives": ["学習・検証・テストの役割を区別する", "過学習を学習スコアとの差から見つける", "系列やバッチを意識した分割を設計する"],
+        "terms": ["汎化：未知データでも性能を保つこと", "過学習：学習データへ合わせすぎること", "リーク：予測時には得られない情報が学習へ混ざること", "グループ分割：関連試料を同じ側へまとめる分割"],
+        "reading": ["検証方法は将来の使われ方を模擬する", "高すぎるスコアはリークを疑うきっかけになる", "平均スコアだけでなく分割ごとのばらつきを見る"],
+        "pitfalls": ["前処理を全データで済ませてから分割する", "同じ系列の類似化合物を両側へ入れる", "検証データを何度も見て実質的に学習する"],
+        "self_study": ["ランダム分割と系列分割のF1を比較する", "自社データで跨がせてはいけない単位を3候補挙げる"],
+        "check": ["検証とテストの違いは何か", "リークを疑う3つの質問は何か", "分割方法を先に決める理由は何か"],
+    },
+    "07-regression": {
+        "objectives": ["MAE・RMSE・R²を異なる視点として読む", "Dummyと複数モデルを同条件で比較する", "残差を群別に調べて次の仮説を作る"],
+        "terms": ["MAE：絶対誤差の平均", "RMSE：大きな誤差をより重く扱う指標", "R²：平均予測と比べた当てはまり", "残差：実測値と予測値の差"],
+        "reading": ["MAEは目的変数と同じ単位で説明できる", "全体指標が良くても特定系列で外すことがある", "残差の模様は未学習の構造を示すことがある"],
+        "pitfalls": ["R²だけで利用可能と判断する", "テストデータでモデルを選ぶ", "大きな誤差を外れ値としてすぐ除く"],
+        "self_study": ["触媒別と系列別のMAEを計算する", "MAE 5ポイントが業務上許容できるか利用場面から考える"],
+        "check": ["MAEとRMSEは何を違って重視するか", "Dummyより悪い場合に何を見直すか", "残差図に模様があると何を疑うか"],
+    },
+    "08-classification": {
+        "objectives": ["混同行列の4区分を利用場面に結びつける", "precision・recall・F1を使い分ける", "確率と閾値を分けて考える"],
+        "terms": ["precision：陽性予測のうち正しかった割合", "recall：実際の陽性を見つけた割合", "F1：precisionとrecallの調和平均", "閾値：確率をクラスへ変換する境界"],
+        "reading": ["同じ確率でも閾値によりクラスが変わる", "不均衡データではaccuracyが高くても役立たないことがある", "閾値はモデル学習後にも業務要件から調整できる"],
+        "pitfalls": ["常に閾値0.5を使う", "偽陽性と偽陰性のコストを同じとみなす", "検証データで閾値を細かく最適化しすぎる"],
+        "self_study": ["0.1刻みの閾値表を作り利用目的に合う点を選ぶ", "探索段階と確証段階で重視する指標を比較する"],
+        "check": ["偽陽性・偽陰性はそれぞれ何か", "accuracyが危険な例は何か", "閾値を下げると一般にrecallはどうなるか"],
+    },
+    "09-preprocessing-pipeline": {
+        "objectives": ["列型ごとの前処理を説明する", "前処理とモデルをPipelineとして一体化する", "未知カテゴリと欠損を安全に扱う"],
+        "terms": ["欠損補完：欠けた値を規則に基づいて埋める処理", "標準化：尺度を平均0・標準偏差1付近へ揃える処理", "One-Hot：カテゴリを0/1列へ変換する処理", "Pipeline：順序付き処理を1つの推定器として扱う仕組み"],
+        "reading": ["fit時に学ぶ値とtransformだけの処理を区別する", "変換後は元より列数が増えることがある", "Pipeline全体を交差検証へ渡す"],
+        "pitfalls": ["全データ平均で欠損補完する", "カテゴリを意味のない大小関係へ変換する", "本番の未知カテゴリでエラーになる"],
+        "self_study": ["変換後の特徴量名と列数を確認する", "Pipelineあり・なしの手順を図にしてリーク箇所を示す"],
+        "check": ["数値列とカテゴリ列で何を変えるか", "Pipelineがリークを防ぎやすい理由は何か", "handle_unknownが必要なのはなぜか"],
+    },
+    "10-model-comparison": {
+        "objectives": ["同じ分割・指標で複数モデルを比較する", "性能・速度・説明性・安定性を合わせて評価する", "学習と検証の差から過学習を読む"],
+        "terms": ["線形モデル：特徴量効果を重みの和で表すモデル", "決定木：条件分岐を重ねるモデル", "アンサンブル：複数モデルを組み合わせる方法", "交差検証：分割を変えて性能の安定性を見る方法"],
+        "reading": ["1回の勝敗より平均とばらつきを見る", "わずかな改善と複雑化の釣り合いを考える", "目的により最良モデルは変わる"],
+        "pitfalls": ["異なる分割で比較する", "モデルごとに異なる指標を報告する", "最も高い1回のスコアだけを採用する"],
+        "self_study": ["5-fold CVでF1平均・標準偏差・時間を比較する", "説明重視と性能重視の2用途で推奨モデルを選ぶ"],
+        "check": ["公平な比較に固定すべきものは何か", "ばらつきが大きいモデルをどう扱うか", "最高スコア以外の選択理由は何か"],
+    },
+    "11-feature-engineering": {
+        "objectives": ["化学的仮説を再計算可能な特徴量へ変える", "追加前後を同じ条件で比較する", "系列分割と記述子の限界を意識する"],
+        "terms": ["特徴量設計：既存情報から予測に役立つ表現を作ること", "記述子：分子構造などを数値で表す量", "アブレーション：要素を足し引きして寄与を調べる比較", "適用領域：モデルが信頼できる入力範囲"],
+        "reading": ["特徴量は予測時点で計算できる必要がある", "追加して悪化する結果も仮説検証として価値がある", "類似構造への補間と新規骨格への外挿を区別する"],
+        "pitfalls": ["意味を説明できない特徴量を大量追加する", "目的変数由来の値を特徴量にする", "追加前後で分割やモデルも変える"],
+        "self_study": ["自分の仮説特徴量を式・期待方向・反証条件とともに記録する", "RDKitが使える場合は3記述子を再計算し既存列と照合する"],
+        "check": ["その特徴量はいつ計算できるか", "追加効果をどう公平に比較するか", "新規骨格で性能が落ちる理由は何か"],
+    },
+    "12-experiment-cycle": {
+        "objectives": ["変更を1要素に限定した比較を設計する", "交差検証の平均とばらつきを記録する", "検証データ上の重要度と誤りから次の仮説を選ぶ"],
+        "terms": ["実験ログ：変更・条件・結果・解釈を残す記録", "ハイパーパラメータ：学習前に人が決める設定", "permutation importance：列を崩したときの性能低下で寄与を見る方法", "再現性：同じ手順で同じ結果を得られる性質"],
+        "reading": ["標準偏差が改善幅より大きくないか確認する", "重要度は因果効果ではない", "仮説は次の実験で反証可能な形にする"],
+        "pitfalls": ["同時に複数要素を変える", "学習データ上の重要度だけを見る", "悪化した実験を記録から消す"],
+        "self_study": ["実験ログをCSVへ保存し再読込する", "重要度上位1列を外すアブレーションを行う"],
+        "check": ["1要素だけ変える理由は何か", "平均と標準偏差をどう読むか", "重要度から断定できないことは何か"],
+    },
+    "13-kaggle-kickoff": {
+        "objectives": ["問題・指標・データ・提出形式を読み解く", "再現可能なベースラインをローカル評価する", "提出CSVを機械的に検査する"],
+        "terms": ["Leaderboard：提出結果を順位表示する仕組み", "Public/Private：公開中と最終判定で使う評価データの区分", "submission：指定形式の予測ファイル", "ベースライン：最初に必ず保存する比較起点"],
+        "reading": ["testには答えがないことを確認する", "ローカル検証とLeaderboardの役割を分ける", "ID列の順序と一意性を検査する"],
+        "pitfalls": ["testの情報へ合わせて特徴量を決める", "提出ファイルのindex列を混入させる", "最初から公開Notebookを丸ごと写す"],
+        "self_study": ["データ辞書を自分の言葉で1ページにする", "ベースライン提出後に変更点を1つだけ試す"],
+        "check": ["評価指標は何か", "trainとtestの違いは何か", "提出前に検査する3項目は何か"],
+    },
+    "14-kaggle-improvement": {
+        "objectives": ["限られた時間で実験を優先順位付けする", "特徴量・モデル・閾値を分離して評価する", "誤分類を群別に調べて改善仮説を作る"],
+        "terms": ["Leaderboard overfitting：順位表へ過度に合わせること", "誤分類分析：外した試料の共通点を調べる作業", "閾値調整：確率からクラスへの境界を変えること", "実験統合：有効な変更を再検証しながら組み合わせること"],
+        "reading": ["ローカル改善とLeaderboard改善の一致を確認する", "改善幅が偶然でないか再分割で見る", "誤分類群にデータ不足や分布差がないか調べる"],
+        "pitfalls": ["5人の変更を一度に統合する", "Leaderboardだけを目的関数にする", "検証データで選んだ閾値を同じデータで報告する"],
+        "self_study": ["系列別の件数・F1・誤分類数を表にする", "最終案をゼロから再実行して同じ提出を作る"],
+        "check": ["次の実験を何で優先するか", "ローカルとLeaderboardがずれたら何を疑うか", "改善を統合する順序はどうするか"],
+    },
+    "15-show-and-tell": {
+        "objectives": ["モデルの目的・検証・結果・限界を短く説明する", "失敗を含む改善過程を再現可能に共有する", "自社データでの小さな次の一歩を設計する"],
+        "terms": ["モデルカード：用途・データ・評価・限界をまとめた記録", "適用範囲：モデルを使ってよい対象と条件", "再現手順：第三者が同じ結果へ到達する手順", "モニタリング：運用後の入力や性能変化を確認すること"],
+        "reading": ["最高スコアより判断への使い方を説明する", "既知の弱点と使ってはいけない条件を書く", "機密情報を公開教材や生成AIへ入力しない"],
+        "pitfalls": ["スコアだけを成果として示す", "自社データの利用許可や来歴を省略する", "本番投入を最初の試行にする"],
+        "self_study": ["1ページのモデルカードを完成させる", "30日以内にできるデータ棚卸し・ベースライン・レビューを計画する"],
+        "check": ["このモデルは誰の何の判断を助けるか", "どの対象では信頼できないか", "次の小さな検証は何か"],
+    },
+}
+
+
+DEEP_DIVE_CODE = {
+    "01-kickoff": """
+        probability = model.predict_proba(X_valid)[:, 1]
+        summary = pd.DataFrame({"実際": y_valid.to_numpy(), "活性確率": probability})
+        display(summary.groupby("実際")["活性確率"].describe().round(3))
+        importance = pd.DataFrame({"特徴量": features, "重要度": model.feature_importances_})
+        display(importance.sort_values("重要度", ascending=False).round(3))
+    """,
+    "02-python-with-copilot": """
+        def celsius_to_kelvin_checked(celsius: float) -> float:
+            if not isinstance(celsius, (int, float)):
+                raise TypeError("温度は数値で入力してください")
+            if celsius < -273.15:
+                raise ValueError("絶対零度より低い値は指定できません")
+            return celsius + 273.15
+
+        for value in [25, -273.15, -300, "25"]:
+            try:
+                print(value, "->", celsius_to_kelvin_checked(value))
+            except (TypeError, ValueError) as error:
+                print(value, "->", type(error).__name__, error)
+    """,
+    "03-pandas": """
+        quality_report = pd.DataFrame({
+            "型": df.dtypes.astype(str),
+            "欠損率": df.isna().mean(),
+            "ユニーク数": df.nunique(dropna=True),
+        })
+        display(quality_report.sort_values("欠損率", ascending=False).head(10).round(3))
+        display(pd.pivot_table(df, index="catalyst", columns="solvent", values="yield_pct", aggfunc=["count", "mean"]).round(1))
+    """,
+    "04-eda": """
+        numeric_columns = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa", "yield_pct"]
+        correlation = df[numeric_columns].corr()
+        plt.figure(figsize=(9, 6))
+        sns.heatmap(correlation, annot=True, fmt=".2f", cmap="coolwarm", center=0)
+        plt.title("数値列の相関（因果関係ではない）")
+        plt.tight_layout()
+        missing_by_solvent = df.assign(temperature_missing=df["temperature_c"].isna()).groupby("solvent", dropna=False)["temperature_missing"].agg(["count", "mean"])
+        display(missing_by_solvent.rename(columns={"count": "件数", "mean": "温度欠損率"}).round(3))
+    """,
+    "05-problem-framing": """
+        problem_canvas = pd.DataFrame({
+            "項目": ["利用者", "判断", "予測時点", "目的変数", "使える情報", "使えない情報", "評価指標", "単純基準"],
+            "例": ["実験担当者", "次に試す条件の優先順位", "実験計画時", "yield_pct", "構造・予定条件", "実験後の測定値", "MAE", "過去平均"],
+        })
+        display(problem_canvas)
+        error_cost = pd.DataFrame({"誤り": ["収率を過大予測", "収率を過小予測"], "起こりうる影響": ["低収率条件へ実験資源を使う", "有望条件を見送る"], "確認したい相手": ["実験担当者", "テーマリーダー"]})
+        display(error_cost)
+    """,
+    "06-validation-leakage": """
+        from sklearn.model_selection import GroupKFold, cross_val_score
+        from sklearn.pipeline import make_pipeline
+        from sklearn.impute import SimpleImputer
+
+        grouped_model = make_pipeline(SimpleImputer(strategy="median"), DecisionTreeClassifier(max_depth=4, random_state=42))
+        group_cv = GroupKFold(n_splits=5)
+        group_scores = cross_val_score(grouped_model, df[features], df["active"], groups=df["scaffold_group"], cv=group_cv, scoring="f1")
+        print("系列分割F1:", group_scores.round(3))
+        print("平均 ± 標準偏差:", round(group_scores.mean(), 3), "±", round(group_scores.std(), 3))
+    """,
+    "07-regression": """
+        errors["残差"] = errors["yield_pct"] - errors["予測"]
+        group_error = errors.groupby("scaffold_group").agg(件数=("残差", "size"), MAE=("絶対誤差", "mean"), 平均残差=("残差", "mean"))
+        display(group_error.sort_values("MAE", ascending=False).round(2))
+        print("平均残差が正なら、その系列を平均的に過小予測しています。")
+    """,
+    "08-classification": """
+        from sklearn.metrics import precision_recall_curve
+        precision_curve, recall_curve, thresholds = precision_recall_curve(y_valid, probability)
+        curve = pd.DataFrame({"閾値": thresholds, "precision": precision_curve[:-1], "recall": recall_curve[:-1]})
+        curve["F1"] = 2 * curve["precision"] * curve["recall"] / (curve["precision"] + curve["recall"])
+        display(curve.iloc[::max(1, len(curve)//10)].round(3))
+        best_row = curve.loc[curve["F1"].idxmax()]
+        print("この検証データ上でF1最大の閾値（最終性能ではない）:", round(best_row["閾値"], 3))
+    """,
+    "09-preprocessing-pipeline": """
+        transformed_names = model.named_steps["前処理"].get_feature_names_out()
+        transformed = model.named_steps["前処理"].transform(X_train.head(3))
+        print("元の列数:", X_train.shape[1], "変換後の列数:", transformed.shape[1])
+        display(pd.DataFrame(transformed, columns=transformed_names, index=X_train.head(3).index).iloc[:, :12].round(2))
+    """,
+    "10-model-comparison": """
+        from sklearn.model_selection import StratifiedKFold, cross_val_score
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        stability = []
+        for name, estimator in models.items():
+            scores = cross_val_score(estimator, df[features], df["active"], cv=cv, scoring="f1")
+            stability.append({"モデル": name, "F1平均": scores.mean(), "F1標準偏差": scores.std(), "最低F1": scores.min()})
+        display(pd.DataFrame(stability).sort_values("F1平均", ascending=False).round(3))
+    """,
+    "11-feature-engineering": """
+        candidate_sets = {"基本": base, "温度距離だけ": [*base, "temperature_distance"], "濃度/時間だけ": [*base, "concentration_per_hour"], "両方": added}
+        ablation = []
+        for name, columns in candidate_sets.items():
+            estimator = make_pipeline(SimpleImputer(strategy="median"), RandomForestRegressor(n_estimators=150, max_depth=6, random_state=42))
+            estimator.fit(engineered.loc[train_idx, columns], engineered.loc[train_idx, "yield_pct"])
+            prediction = estimator.predict(engineered.loc[valid_idx, columns])
+            ablation.append({"特徴量セット": name, "列数": len(columns), "MAE": mean_absolute_error(engineered.loc[valid_idx, "yield_pct"], prediction)})
+        display(pd.DataFrame(ablation).sort_values("MAE").round(3))
+    """,
+    "12-experiment-cycle": """
+        from sklearn.model_selection import train_test_split
+        X_fit, X_holdout, y_fit, y_holdout = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+        best = make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=150, max_depth=6, random_state=42)).fit(X_fit, y_fit)
+        importance = permutation_importance(best, X_holdout, y_holdout, scoring="f1", n_repeats=10, random_state=42)
+        holdout_importance = pd.DataFrame({"特徴量": features, "重要度平均": importance.importances_mean, "重要度標準偏差": importance.importances_std})
+        display(holdout_importance.sort_values("重要度平均", ascending=False).round(3))
+        experiment_log.to_csv(ROOT / "workspace" / "experiment_log.csv", index=False)
+        print("実験ログをworkspace/experiment_log.csvへ保存しました")
+    """,
+    "13-kaggle-kickoff": """
+        def validate_submission(submission, test, expected_columns):
+            assert list(submission.columns) == expected_columns, "列名または順序が違います"
+            assert len(submission) == len(test), "行数がtestと一致しません"
+            assert submission[expected_columns[0]].is_unique, "IDが重複しています"
+            assert submission[expected_columns[0]].tolist() == test[expected_columns[0]].tolist(), "IDの順序がtestと一致しません"
+            assert submission[expected_columns[1]].isin([0, 1]).all(), "予測値は0/1にしてください"
+            return "提出形式OK"
+
+        print(validate_submission(submission, test, ["sample_id", "active"]))
+        display(train[target].value_counts(normalize=True).rename("割合").to_frame().round(3))
+    """,
+    "14-kaggle-improvement": """
+        validation_result = X_valid[["scaffold_group"]].copy()
+        validation_result["正解"] = y_valid
+        validation_result["予測"] = model.predict(X_valid)
+        validation_result["誤分類"] = validation_result["正解"] != validation_result["予測"]
+        error_by_group = validation_result.groupby("scaffold_group").agg(件数=("誤分類", "size"), 誤分類数=("誤分類", "sum"), 誤分類率=("誤分類", "mean"))
+        display(error_by_group.sort_values(["誤分類率", "件数"], ascending=False).round(3))
+    """,
+    "15-show-and-tell": """
+        model_card = pd.DataFrame({
+            "項目": ["想定利用者", "支援する判断", "学習データ", "評価方法", "既知の限界", "使ってはいけない条件", "再現手順", "次の検証"],
+            "記入例": ["実験担当者", "候補条件の優先順位", "公開合成データ420件", "系列分割F1", "新規系列に弱い可能性", "対象外化学空間", "uv sync→Run All", "社内データ辞書の確認"],
+        })
+        display(model_card)
+    """,
+}
+
+
 def markdown(text: str) -> dict:
     return {"cell_type": "markdown", "metadata": {}, "source": dedent(text).strip() + "\n"}
 
@@ -71,6 +336,62 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
 
 
 def write_notebook(folder: str, content: dict) -> None:
+    meta = LESSON_META[folder]
+    objectives = "\n".join(f"- {item}" for item in meta["objectives"])
+    terms = "\n".join(f"- {item}" for item in meta["terms"])
+    reading = "\n".join(f"- {item}" for item in meta["reading"])
+    pitfalls = "\n".join(f"- {item}" for item in meta["pitfalls"])
+    self_study = "\n".join(f"- {item}" for item in meta["self_study"])
+    check = "\n".join(f"{index}. {item}" for index, item in enumerate(meta["check"], start=1))
+    guide = markdown(
+        f"""
+        ## この回でできるようになること
+
+        {objectives}
+
+        ### 進み方
+
+        `CORE`は同期90分で扱う本線、`DEEP DIVE`は時間があれば扱う深掘り、
+        `SELF-STUDY`は任意自習です。すべて終わらなくても次回へ進めます。
+
+        ### 先に押さえる言葉
+
+        {terms}
+
+        > **実行前の30秒予想**：今日の問いに、今の言葉で仮の答えを書いてから始めます。
+        """
+    )
+    deep_dive_intro = markdown(
+        f"""
+        ## DEEP DIVE：結果を一段深く読む
+
+        次のセルは、数値を出して終わらず「どの条件で、なぜそう見えるか」を調べる発展です。
+
+        ### 出力を見る観点
+
+        {reading}
+        """
+    )
+    wrap_up = markdown(
+        f"""
+        ## よくある誤り
+
+        {pitfalls}
+
+        ## SELF-STUDY（任意・30〜60分）
+
+        {self_study}
+
+        成果は完成したコードでなくても、予想・変更点・出力・解釈を4行で残せば十分です。
+
+        ## 振り返りチェック
+
+        {check}
+
+        答えに詰まった項目が、次に見返す場所です。暗記ではなくNotebookの該当セルを指せればOKです。
+        """
+    )
+    content["cells"] = [content["cells"][0], content["cells"][1], guide, *content["cells"][2:], deep_dive_intro, code(DEEP_DIVE_CODE[folder]), wrap_up]
     write_named_notebook(folder, "lesson.ipynb", content)
 
 
