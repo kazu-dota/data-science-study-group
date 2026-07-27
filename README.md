@@ -45,10 +45,17 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 
 ## Notebookの目印
 
+- `CORE`：同期90分で扱う本線
 - `TRY`：全員で試す
 - `CHANGE`：値や列を少し変更する
 - `CHALLENGE`：興味のある人向けの自由研究
+- `DEEP DIVE`：同じ題材を一段深く調べる追加実験
+- `SELF-STUDY`：任意の30～60分自習
 - `ASK COPILOT`：M365 Copilotへ相談してみる
+
+各Notebookには、学習目標、重要用語、実行前の予想、結果を見る観点、よくある誤り、
+回ごとに異なる深掘りコード、任意自習、振り返りの3問を収録しています。
+初学者は`CORE`と`TRY`を優先し、経験者は同じNotebookの`DEEP DIVE`へ進みます。
 
 ## 図の読み方
 
