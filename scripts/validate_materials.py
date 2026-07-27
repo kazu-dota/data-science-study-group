@@ -18,10 +18,26 @@ ROOT = Path(__file__).resolve().parents[1]
 def validate_files() -> list[Path]:
     notebooks = sorted((ROOT / "lessons").glob("*/lesson.ipynb"))
     assert len(notebooks) == 15, f"Notebookは15本必要です: {len(notebooks)}本"
+    required_sections = [
+        "## この回でできるようになること",
+        "## DEEP DIVE",
+        "## よくある誤り",
+        "## SELF-STUDY",
+        "## 振り返りチェック",
+    ]
     for path in notebooks:
         content = json.loads(path.read_text(encoding="utf-8"))
         assert content["nbformat"] == 4
-        assert len(content["cells"]) >= 4, f"セルが少なすぎます: {path}"
+        assert len(content["cells"]) >= 10, f"セルが少なすぎます: {path}"
+        code_cells = [cell for cell in content["cells"] if cell["cell_type"] == "code"]
+        assert len(code_cells) >= 3, f"実行例が少なすぎます: {path}"
+        markdown_text = "\n".join(
+            "".join(cell["source"]) if isinstance(cell["source"], list) else cell["source"]
+            for cell in content["cells"]
+            if cell["cell_type"] == "markdown"
+        )
+        missing_sections = [section for section in required_sections if section not in markdown_text]
+        assert not missing_sections, f"必須セクション不足: {path}: {missing_sections}"
         ids = [cell.get("id") for cell in content["cells"]]
         assert all(ids) and len(ids) == len(set(ids)), f"セルIDを確認してください: {path}"
     return notebooks
