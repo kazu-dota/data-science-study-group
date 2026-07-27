@@ -66,5 +66,5 @@ RandomForestRegressorのmax_depthを3、5、10で比較できるようにして�
 
 ## 公式教材
 
-- [Microsoft 365 Copilotで優れたプロンプトを書く](https://support.microsoft.com/en-us/microsoft-365-copilot/write-a-great-prompt-in-microsoft-365-copilot)
-- [Microsoft Learn: Copilot Chat (Basic)の効果的なプロンプト](https://learn.microsoft.com/en-us/training/modules/write-effective-prompts-do-more-prompting/)
+- [Microsoft 365 Copilotに優れたプロンプトを書く](https://support.microsoft.com/ja-jp/microsoft-365-copilot/write-a-great-prompt-in-microsoft-365-copilot)
+- [Microsoft 365 Copilotの効果的なプロンプトを作成する](https://learn.microsoft.com/ja-jp/training/paths/craft-effective-prompts-copilot-microsoft-365/)

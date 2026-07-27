@@ -14,7 +14,9 @@
 - [各回で使う既存教材候補](docs/resources.md)
 - [Windows環境の準備](docs/setup-windows.md)
 - [M365 Copilotと一緒にコードを書く](docs/copilot-guide.md)
+- [講師用進行ガイド](docs/instructor-guide.md)
 - [各回の教材](lessons/)
+- [教材データの説明](data/README.md)
 
 ## ローカル環境
 
@@ -37,6 +39,8 @@ uv run jupyter lab
 ```
 
 VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\python.exe` を選択します。
+
+各回のフォルダにある`lesson.ipynb`を`workspace`へコピーし、コピーした方を上から順に実行します。
 
 ## Notebookの目印
 
