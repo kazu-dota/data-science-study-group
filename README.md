@@ -50,17 +50,23 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 - `CHANGE`：値や列を少し変更する
 - `CHALLENGE`：興味のある人向けの自由研究
 - `DEEP DIVE`：同じ題材を一段深く調べる追加実験
+- `APPENDIX（任意・追加演習）`：90分の外で手を動かす、重めの追加コード
 - `SELF-STUDY`：任意の30～60分自習
 - `ASK COPILOT`：M365 Copilotへ相談してみる
 
-各Notebookには、学習目標、重要用語、実行前の予想、`CORE`の本線と`CORE深掘り`、
-結果を見る観点、複数セルの`DEEP DIVE`、よくある誤り、任意自習、振り返りの3問を収録しています。
+各Notebookは、初学者が独りでも読み進められるよう、**コードセルごとに解説を挟む**構成です。
+おおむね「これから何をするか → コード → 出力の読み方・つまずきポイント」の順に並び、
+`train_test_split`や`fit`/`predict`のような初出のAPIは、その場で日本語で説明します。
+学習目標、重要用語、実行前の予想、`CORE`の本線と`CORE深掘り`、複数セルの`DEEP DIVE`、
+任意の`APPENDIX`、よくある誤り、任意自習、振り返りの3問も収録しています。
 `CORE`でも関数化・交差検証・ベースライン比較まで踏み込み、`DEEP DIVE`では
 学習曲線・ネストした交差検証・確率の較正・スタッキング・特徴量選択など、
 評価の厳密さとモデルの多様さを一段深く扱います。
-初学者は`CORE`と`TRY`を優先し、経験者は同じNotebookの`CORE深掘り`と`DEEP DIVE`へ進みます。
+初学者は`CORE`と`TRY`を優先し、経験者は同じNotebookの`CORE深掘り`・`DEEP DIVE`・`APPENDIX`へ進みます。
 
-一部の`DEEP DIVE`はXGBoostやOptunaを任意で使えますが、未導入でもscikit-learnだけで
+`APPENDIX`は90分の同期回では扱いません。時間の制約でCOREを絞っている分を、自習で手を動かして
+深められるように用意した任意の追加コードです（飛ばしても本編は完結します）。
+一部の`DEEP DIVE`／`APPENDIX`はXGBoostやOptunaを任意で使えますが、未導入でもscikit-learnだけで
 最後まで実行できます。使いたい人だけ `uv sync --extra advanced` を実行します。
 
 ## 図の読み方
@@ -71,23 +77,25 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 
 ## 全15回
 
-| 回 | テーマ |
-|---:|---|
-| 1 | 予測モデルを動かしてみる |
-| 2 | Pythonを読み、Copilotと少し変える |
-| 3 | pandasで表データに触る |
-| 4 | データ探偵：分布・欠損・外れ値 |
-| 5 | 何を、いつ、何のために予測するか |
-| 6 | モデルは本当に当たっているか |
-| 7 | 数値を予測する：回帰 |
-| 8 | クラスを予測する：分類 |
-| 9 | 前処理をPipelineにまとめる |
-| 10 | モデル対決：線形モデル・木・アンサンブル |
-| 11 | 化学の知識を特徴量にする |
-| 12 | 改善実験を小さく回す |
-| 13 | Kaggleに入って最初の提出を作る |
-| 14 | Kaggle改善会 |
-| 15 | Show & Tellと自社データへの橋渡し |
+各回の「フォルダ」を押すと、その回の教材（`README.md`と`lesson.ipynb`）へ直接移動できます。
+
+| 回 | テーマ | フォルダ | Notebook |
+|---:|---|---|---|
+| 1 | 予測モデルを動かしてみる | [01-kickoff](lessons/01-kickoff/) | [開く](lessons/01-kickoff/lesson.ipynb) |
+| 2 | Pythonを読み、Copilotと少し変える | [02-python-with-copilot](lessons/02-python-with-copilot/) | [開く](lessons/02-python-with-copilot/lesson.ipynb) |
+| 3 | pandasで表データに触る | [03-pandas](lessons/03-pandas/) | [開く](lessons/03-pandas/lesson.ipynb) |
+| 4 | データ探偵：分布・欠損・外れ値 | [04-eda](lessons/04-eda/) | [開く](lessons/04-eda/lesson.ipynb) |
+| 5 | 何を、いつ、何のために予測するか | [05-problem-framing](lessons/05-problem-framing/) | [開く](lessons/05-problem-framing/lesson.ipynb) |
+| 6 | モデルは本当に当たっているか | [06-validation-leakage](lessons/06-validation-leakage/) | [開く](lessons/06-validation-leakage/lesson.ipynb) |
+| 7 | 数値を予測する：回帰 | [07-regression](lessons/07-regression/) | [開く](lessons/07-regression/lesson.ipynb) |
+| 8 | クラスを予測する：分類 | [08-classification](lessons/08-classification/) | [開く](lessons/08-classification/lesson.ipynb) |
+| 9 | 前処理をPipelineにまとめる | [09-preprocessing-pipeline](lessons/09-preprocessing-pipeline/) | [開く](lessons/09-preprocessing-pipeline/lesson.ipynb) |
+| 10 | モデル対決：線形モデル・木・アンサンブル | [10-model-comparison](lessons/10-model-comparison/) | [開く](lessons/10-model-comparison/lesson.ipynb) |
+| 11 | 化学の知識を特徴量にする | [11-feature-engineering](lessons/11-feature-engineering/) | [開く](lessons/11-feature-engineering/lesson.ipynb) |
+| 12 | 改善実験を小さく回す | [12-experiment-cycle](lessons/12-experiment-cycle/) | [開く](lessons/12-experiment-cycle/lesson.ipynb) |
+| 13 | Kaggleに入って最初の提出を作る | [13-kaggle-kickoff](lessons/13-kaggle-kickoff/) | [開く](lessons/13-kaggle-kickoff/lesson.ipynb) |
+| 14 | Kaggle改善会 | [14-kaggle-improvement](lessons/14-kaggle-improvement/) | [開く](lessons/14-kaggle-improvement/lesson.ipynb) |
+| 15 | Show & Tellと自社データへの橋渡し | [15-show-and-tell](lessons/15-show-and-tell/) | [開く](lessons/15-show-and-tell/lesson.ipynb) |
 
 ## 公開リポジトリのルール
 
