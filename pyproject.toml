@@ -18,6 +18,10 @@ dependencies = [
 chemistry = [
     "rdkit>=2025.3",
 ]
+advanced = [
+    "xgboost>=2.1",
+    "optuna>=4.0",
+]
 
 [tool.uv]
 package = false

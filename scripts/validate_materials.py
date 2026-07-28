@@ -28,9 +28,9 @@ def validate_files() -> list[Path]:
     for path in notebooks:
         content = json.loads(path.read_text(encoding="utf-8"))
         assert content["nbformat"] == 4
-        assert len(content["cells"]) >= 10, f"セルが少なすぎます: {path}"
+        assert len(content["cells"]) >= 14, f"セルが少なすぎます: {path}"
         code_cells = [cell for cell in content["cells"] if cell["cell_type"] == "code"]
-        assert len(code_cells) >= 3, f"実行例が少なすぎます: {path}"
+        assert len(code_cells) >= 5, f"実行例が少なすぎます: {path}"
         markdown_text = "\n".join(
             "".join(cell["source"]) if isinstance(cell["source"], list) else cell["source"]
             for cell in content["cells"]
