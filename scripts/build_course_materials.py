@@ -591,7 +591,7 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
     }
 
 
-def write_notebook(folder: str, content: dict, deep_dive_cells: list[dict]) -> None:
+def write_notebook(folder: str, content: dict, deep_dive_cells: list[dict], appendix_cells: list[dict] | None = None) -> None:
     meta = LESSON_META[folder]
     objectives = "\n".join(f"- {item}" for item in meta["objectives"])
     terms = "\n".join(f"- {item}" for item in meta["terms"])
@@ -647,6 +647,7 @@ def write_notebook(folder: str, content: dict, deep_dive_cells: list[dict]) -> N
         guide,
         *content["cells"][2:],
         *deep_dive_cells,
+        *(appendix_cells or []),
         wrap_up,
     ]
     write_named_notebook(folder, "lesson.ipynb", content)
@@ -793,22 +794,18 @@ def build_notebooks() -> None:
             "第1回：予測モデルを動かしてみる",
             "予測モデルは、データを受け取って何を返しているのか。",
             [
-                markdown("""## 予測モデルを、料理ではなく実験でたとえる
+                markdown("""## この回で押さえる4つの言葉
 
-「機械学習モデル」と聞くと難しく感じますが、やっていることは研究者の頭の中と似ています。
-過去にたくさんの実験（データ）を見て「この条件なら活性が出やすい」という**経験則**を作り、
-未知の条件に対して「たぶん活性あり／なし」を答える。この経験則づくりが**学習（fit）**、
-未知への当てはめが**予測（predict）**です。
+この回は、モデルの中身のアルゴリズムは一旦置いて、**何を入れると何が返るか**だけを確認します。
+モデルがやることは「過去のデータから関係を推定し（学習）、未知のデータへ当てはめる（予測）」の2段です。
+先に、繰り返し出てくる4つの言葉を整理します。
 
-この回では、中身のアルゴリズムは一旦置いて、**何を入れると何が返るか**だけを体で覚えます。
-下に出てくる言葉を、実験のイメージと結びつけておきましょう。
-
-| 言葉 | 意味 | 実験でのイメージ |
-|---|---|---|
-| 特徴量（X） | モデルへ渡す入力の列 | 分子量・LogPなど、計画時に分かっている条件 |
-| 目的変数（y） | 予測したい答えの列 | その条件で活性が出たか（0/1） |
-| 学習（fit） | 過去データから関係を推定する | 過去の実験ノートを読み込む |
-| 予測（predict） | 学習済みモデルを未知へ使う | 新しい条件の結果を見立てる |"""),
+| 言葉 | 意味 |
+|---|---|
+| 特徴量（X） | モデルへ渡す入力の列（例：分子量・LogP） |
+| 目的変数（y） | 予測したい答えの列（例：活性 0/1） |
+| 学習（fit） | 既知データから関係を推定する処理 |
+| 予測（predict） | 学習済みモデルを未知データへ使う処理 |"""),
                 markdown("""## まずデータを開く
 
 分析は「データを見る」ことから始まります。次のセルはCSV（表計算のような表データ）を読み込み、
@@ -829,8 +826,7 @@ def build_notebooks() -> None:
 
 **なぜ「ベースライン」と比べるのか？** いきなり高機能なモデルの点数だけ見ても、それが
 「すごい」のか「当たり前」なのか分かりません。そこで、**いつも多数派（ここでは非活性）と
-答えるだけの単純なモデル**を先に用意し、本命がそれをどれだけ上回るかで価値を測ります。
-これは「対照実験（コントロール）」と同じ考え方です。"""),
+答えるだけの単純なモデル**を先に用意し、本命がそれをどれだけ上回るかで価値を測ります。"""),
                 code("""
                     from sklearn.model_selection import train_test_split
                     from sklearn.ensemble import RandomForestClassifier
@@ -915,8 +911,8 @@ def build_notebooks() -> None:
 
 ## ASK COPILOT
 
-M365 Copilotに、`fit`と`predict_proba`の違いを「測定装置の校正」と「未知試料の測定」に
-たとえて説明してもらいましょう。返答を鵜呑みにせず、上の出力と照らして確かめます。
+M365 Copilotに、`fit`と`predict_proba`の違いを初心者向けに説明してもらいましょう。
+返答を鵜呑みにせず、上の出力と照らして確かめます。
 
 ## まとめ
 
@@ -1001,6 +997,62 @@ M365 Copilotに、`fit`と`predict_proba`の違いを「測定装置の校正」
 `0.6〜0.8`の帯で実際の活性率が0.7前後なら、確率はよく較正されています。大きくずれていたら、
 確率の数字を鵜呑みにせず、順位付け（どれを先に試すか）にとどめる使い方が安全です。
 なお件数が少ない帯は割合が不安定なので、件数も一緒に見ます。"""),
+        ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+ここから先は90分では扱いません。手を動かして深めたい人向けの追加コードです。飛ばして次回へ進んでも
+問題ありません。まずは**複数モデルを1つの関数でまとめて比較**します（第10回の予告編）。"""),
+            code("""
+                from sklearn.linear_model import LogisticRegression
+                from sklearn.tree import DecisionTreeClassifier
+                from sklearn.ensemble import HistGradientBoostingClassifier
+                from sklearn.pipeline import make_pipeline
+                from sklearn.impute import SimpleImputer
+
+                def compare_models(candidates, X_tr, y_tr, X_va, y_va) -> pd.DataFrame:
+                    "候補モデルを同じデータで学習し、accuracyとF1の表を返す。"
+                    out = []
+                    for name, est in candidates.items():
+                        est.fit(X_tr, y_tr)
+                        pred = est.predict(X_va)
+                        out.append({"モデル": name, "accuracy": accuracy_score(y_va, pred), "F1": f1_score(y_va, pred)})
+                    return pd.DataFrame(out).sort_values("F1", ascending=False).round(3)
+
+                candidates = {
+                    "多数派": DummyClassifier(strategy="most_frequent"),
+                    "ロジスティック回帰": make_pipeline(SimpleImputer(strategy="median"), LogisticRegression(max_iter=1000)),
+                    "決定木": DecisionTreeClassifier(max_depth=4, random_state=42),
+                    "Random Forest": RandomForestClassifier(n_estimators=200, max_depth=4, random_state=42),
+                    "勾配ブースティング": HistGradientBoostingClassifier(max_iter=200, random_state=42),
+                }
+                compare_models(candidates, X_train, y_train, X_valid, y_valid)
+            """),
+            markdown("""### 出力の読み方
+
+F1の高い順に5モデルが並びます。**最も複雑なモデルが必ず1位とは限らない**こと、そして
+「多数派」を全モデルが上回っているかを確認します。この`compare_models`関数は、以降の回でも使い回せます。"""),
+            markdown("""### ROC曲線と混同行列を並べて見る
+
+分類の性能を2つの図で確認します。**ROC曲線**は閾値を動かしたときの当たり方を1本の曲線にしたもので、
+曲線下の面積（AUC）が1に近いほど良い。**混同行列**は0.5で判定したときの内訳です。"""),
+            code("""
+                import matplotlib.pyplot as plt
+                from sklearn.metrics import RocCurveDisplay, ConfusionMatrixDisplay
+
+                fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+                RocCurveDisplay.from_estimator(model, X_valid, y_valid, ax=axes[0])
+                axes[0].plot([0, 1], [0, 1], "--", color="gray")
+                axes[0].set_title("ROC曲線（Random Forest）")
+                ConfusionMatrixDisplay.from_estimator(model, X_valid, y_valid, display_labels=["非活性", "活性"], cmap="Blues", ax=axes[1])
+                axes[1].set_title("混同行列（閾値0.5）")
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+- **ROC曲線**：左上に張り付くほど良く、対角線（点線）はランダム予測。凡例のAUCが目安の数字です。
+- **混同行列**：右下（活性を活性と当てた数）と、左下（活性を見逃した数）に注目。第8回で本格的に読み解きます。
+- 指標の詳しい意味は第8回で扱うので、ここでは「こういう図で確認できる」と体験できれば十分です。"""),
         ],
     )
 
@@ -1175,6 +1227,79 @@ Copilotは「一発で完成品を作らせる道具」ではなく、「短い�
 `2回目でさらに減った件数`が0でなければ、この関数は**冪等ではない**（適用回数で結果が変わる）と分かります。
 外れ値除去を繰り返し適用する前処理は、この性質のせいで「消しすぎ」が起きやすい、という教訓につながります。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+90分の外で、以後よく使うPythonの部品をもう少し練習します。飛ばしても本編は進められます。
+まずは`enumerate`（番号付き繰り返し）・`zip`（同時に回す）・`sorted`（並べ替え）・条件付き内包表記です。"""),
+            code("""
+                samples = ["CMP-0001", "CMP-0002", "CMP-0003"]
+                yields = [82.5, 40.1, 63.7]
+
+                for i, name in enumerate(samples, start=1):        # 番号付きで回す
+                    print(i, name)
+
+                pairs = {name: y for name, y in zip(samples, yields)}   # 2つを同時に回して辞書化
+                print("辞書:", pairs)
+
+                ranked = sorted(pairs.items(), key=lambda kv: kv[1], reverse=True)  # 収率降順
+                print("収率降順:", ranked)
+
+                high = [name for name, y in pairs.items() if y >= 60]   # 条件付き内包表記
+                print("収率60以上:", high)
+            """),
+            markdown("""### 出力の読み方
+
+- `enumerate`は`(番号, 要素)`を返すので、行番号付きの表示に便利。
+- `zip`は複数リストを同時に回します。`for a, b in zip(...)`の形は頻出です。
+- `sorted(..., key=..., reverse=True)`で並べ替え。`key`に「何で並べるか」を関数で渡します。
+- これらは`for`ループを短く読みやすくする道具で、pandasの内部でも同じ発想が使われています。"""),
+            markdown("""### 自分の「状態を持つ部品」を作る（クラス入門）
+
+関数は入力→出力の1回きりですが、**クラス**は状態を持ち続けられます。値を足しながら件数と平均を
+保つ小さなクラスを書き、`assert`で動作を確かめます。難しければ「こういう書き方がある」で十分です。"""),
+            code("""
+                class RunningStats:
+                    "値を1つずつ足しながら件数・合計・平均を保つ小さなクラス。"
+                    def __init__(self):
+                        self.n = 0
+                        self.total = 0.0
+                    def add(self, value: float) -> None:
+                        self.n += 1
+                        self.total += value
+                    @property
+                    def mean(self) -> float:
+                        return self.total / self.n if self.n else float("nan")
+
+                stats = RunningStats()
+                for y in [82.5, 40.1, 63.7]:
+                    stats.add(y)
+                assert stats.n == 3
+                assert abs(stats.mean - 62.1) < 0.1
+                print(f"件数={stats.n} 平均={stats.mean:.1f}")
+            """),
+            markdown("""### 出力の読み方
+
+`add`を呼ぶたびに内部の`n`と`total`が更新され、`mean`はいつでも現在の平均を返します。`assert`が通れば
+実装は期待どおり。scikit-learnのモデルも「`fit`で状態を覚え、`predict`で使う」クラスなので、この
+仕組みが分かると内部のイメージがつかめます。"""),
+            markdown("""### pandasに橋渡しする
+
+第3回で本格的に使うpandasを、ひと足先に少しだけ触ります。CSVを読み、1列（Series）の平均や
+種類を取り出します。"""),
+            code("""
+                import pandas as pd
+
+                data = pd.read_csv(DATA / "compound_experiments.csv")
+                print("1列の型:", type(data["yield_pct"]).__name__)
+                print("平均収率:", round(data["yield_pct"].mean(), 1))
+                print("溶媒の種類:", data["solvent"].dropna().unique().tolist())
+            """),
+            markdown("""### 出力の読み方
+
+`data["yield_pct"]`は1列（Series）で、`.mean()`のような集計をそのまま呼べます。`.unique()`は値の種類、
+`.dropna()`は欠損を除く指定。ここまで来れば、第3回のpandasはぐっと読みやすくなります。"""),
+        ],
     )
 
     # ---- 第3回 ----
@@ -1191,7 +1316,7 @@ pandasは、Excelのような表（DataFrame）をPythonで扱うライブラリ
 最初の点検をする**習慣です。
 
 初見データを受け取ったら、まず次の4つを見ます：**大きさ（行数×列数）／型（数値か文字か）／
-欠損（空欄はどこか）／ばらつき（平均や範囲）**。名探偵が現場でまず全体を見渡すのと同じです。"""),
+欠損（空欄はどこか）／ばらつき（平均や範囲）**。"""),
                 common_load_cell(),
                 markdown("""## TRY：表の「健康診断」を1度に行う
 
@@ -1322,6 +1447,54 @@ pandasは、Excelのような表（DataFrame）をPythonで扱うライブラリ
 - `結果一致: True`は、2つの書き方が**同じ答え**を出した確認。速く書いても結果が同じであることを、必ず検証します。
 - 教訓：`apply`が必要な場面もありますが、まず「列演算で書けないか」を考える習慣が、速く読みやすいコードにつながります。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+実データで頻出のpandas操作を、もう少し重めに練習します。90分の外の自習向けです。
+まずは**度数の集計**（`value_counts`）と**クロス集計**（`crosstab`）です。"""),
+            code("""
+                print(df["catalyst"].value_counts(dropna=False))
+                print()
+                display(pd.crosstab(df["catalyst"], df["solvent"]))
+            """),
+            markdown("""### 出力の読み方
+
+- `value_counts`は各カテゴリの件数を多い順に。`dropna=False`で欠損も1カテゴリとして数えます。
+- `crosstab`は2つのカテゴリの組み合わせ件数の表。どの触媒×溶媒の組が多い／少ないかが一望できます。件数の少ない組は、後の分析で平均が不安定になりやすい箇所です。"""),
+            markdown("""### 日付を扱う（datetime）
+
+`experiment_date`は文字列です。`pd.to_datetime`で日付型に変えると、月ごとの集計や期間の計算ができます。
+時系列の分割（第6回）にもつながる大事な操作です。"""),
+            code("""
+                dated = df.copy()
+                dated["experiment_date"] = pd.to_datetime(dated["experiment_date"])
+                dated["month"] = dated["experiment_date"].dt.to_period("M").astype(str)
+                monthly = dated.groupby("month").agg(件数=("sample_id", "size"), 平均収率=("yield_pct", "mean")).round(1)
+                display(monthly.head(6))
+            """),
+            markdown("""### 出力の読み方
+
+月ごとの件数と平均収率が並びます。`.dt.to_period("M")`で「年月」に丸めています。実データでは、
+月やバッチで性能が変わることがあり、こうした時間軸の集計が異常検知や分割設計の入口になります。"""),
+            markdown("""### 表をつなぐ（merge）と、形を変える（melt）
+
+`merge`は2つの表をキーで結合します。ここでは「触媒ごとの平均収率」を各行に付け直し、
+各試料が平均より上か下かを計算します。`melt`は横広の表を縦長へ変える操作です。"""),
+            code("""
+                group_mean = df.groupby("catalyst")["yield_pct"].mean().rename("触媒平均収率").reset_index()
+                merged = df[["sample_id", "catalyst", "yield_pct"]].merge(group_mean, on="catalyst")
+                merged["平均との差"] = (merged["yield_pct"] - merged["触媒平均収率"]).round(1)
+                display(merged.head())
+
+                wide = df.head(3)[["sample_id", "molecular_weight", "logp", "tpsa"]]
+                long = wide.melt(id_vars="sample_id", var_name="記述子", value_name="値")
+                display(long)
+            """),
+            markdown("""### 出力の読み方
+
+- **merge後**：各試料に「触媒平均収率」列が付き、「平均との差」で相対評価ができます。この「群平均を特徴量にする」発想は第11回のtarget encodingにつながります（ただしリークに注意）。
+- **melt後**：3列だった記述子が「記述子・値」の2列に畳まれ、行数が増えます。可視化ライブラリはこの縦長形式を好むことが多いです。"""),
+        ],
     )
 
     # ---- 第4回 ----
@@ -1331,11 +1504,11 @@ pandasは、Excelのような表（DataFrame）をPythonで扱うライブラリ
             "第4回：データ探偵—分布・欠損・外れ値",
             "モデルを作る前に、データの怪しいところをどう見つけるか。",
             [
-                markdown("""## EDA＝モデルを作る前の「現場検証」
+                markdown("""## EDA＝モデルを作る前にデータをよく見る工程
 
 EDA（探索的データ分析）は、いきなりモデルを作らず、まずデータをよく見る工程です。目的は
 「きれいなグラフを作ること」ではなく、**モデルを惑わせる怪しい点（偏り・欠損・外れ値）を先に見つけ、
-検証できる仮説を作ること**。名探偵が証拠を集める段階だと思ってください。
+検証できる仮説を作ること**です。
 
 見る順番にはコツがあります：**1変数（分布）→ 2変数（関係）→ 群別（カテゴリごと）**。
 いきなり複雑な図に行かず、単純な図から積み上げます。次のセルはまず描画の下準備（日本語表示と
@@ -1481,6 +1654,54 @@ EDA（探索的データ分析）は、いきなりモデルを作らず、ま�
 - 出た試料を1件ずつ見て、**どの列の組み合わせが変か**を考えます。単変量の箱ひげ図では正常だった試料が混じっていれば、多変量で見る価値があった、ということです。
 - ここでも自動削除はせず、確認対象のリストとして扱います。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+可視化の引き出しを増やします。90分の外の自習向けです。まず**pairplot**で、複数の数値列の関係を
+一度に俯瞰します（散布図と分布のマトリクス）。"""),
+            code("""
+                subset = df[["temperature_c", "reaction_time_h", "yield_pct", "catalyst"]].dropna()
+                sns.pairplot(subset, hue="catalyst", corner=True, plot_kws={"alpha": 0.5})
+            """),
+            markdown("""### 出力の読み方
+
+対角線は各列の分布、対角線以外は2列の散布図で、色は触媒。**触媒ごとにかたまりができている**列の組が
+あれば、それが効いている手がかり。多くの列を一気に眺めて当たりを付け、気になったペアを個別の図で
+深掘りします（俯瞰→詳細の順）。"""),
+            markdown("""### バイオリン図とカウント図
+
+**バイオリン図**は箱ひげ図より分布の形（山が1つか2つか）が分かります。**カウント図**はカテゴリの件数。
+分布の形と件数を押さえると、平均の解釈がぐっと安全になります。"""),
+            code("""
+                fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+                sns.violinplot(data=df, x="catalyst", y="yield_pct", ax=axes[0])
+                axes[0].set_title("触媒別の収率分布（バイオリン）")
+                sns.countplot(data=df, x="solvent", ax=axes[1])
+                axes[1].set_title("溶媒の件数")
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+- **バイオリン**：横幅が太い高さに値が集まっています。二山（2つのふくらみ）なら、隠れた別グループの存在を疑います。
+- **カウント図**：件数の少ない溶媒は、以降の群別集計で平均が不安定になりやすい箇所。分析前に把握しておきます。"""),
+            markdown("""### 群別の目的変数と、目的変数との関連を棒で見る
+
+「触媒別の活性率」と「収率との|相関|が強い列」を棒グラフで並べます。EDAの締めとして、
+**目的変数（active/yield）に効きそうな列**の当たりを付けます。"""),
+            code("""
+                active_rate = df.groupby("catalyst")["active"].mean().sort_values(ascending=False)
+                corr_target = df.select_dtypes("number").corr()["yield_pct"].drop("yield_pct").abs().sort_values(ascending=False)
+                fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+                active_rate.plot.bar(ax=axes[0], title="触媒別の活性率")
+                corr_target.plot.bar(ax=axes[1], title="収率との|相関|")
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+- **左**：触媒によって活性率が違えば、触媒は分類（active）に効く候補。
+- **右**：収率との|相関|が高い列が、回帰（yield）で効く候補。ただし第4回本編のとおり、相関が低くても相互情報量が高い列（温度など）を見落とさないよう、相関の棒だけで判断しないこと。
+- ここで挙がった候補列が、第5回以降の特徴量選びの出発点になります。"""),
+        ],
     )
 
     # ---- 第5回 ----
@@ -1612,6 +1833,79 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 見逃しを避けたい探索段階なら**recall**寄り、追試コストが高い絞り込み段階なら**precision**寄り。
 「良いスコア」を追うのではなく、「この予測で何を決め、間違えると何を失うか」から指標と閾値を選びます。
 これがデータサイエンスを"意味のある学び"にする芯です。"""),
+        ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+問題設定まわりのコードをもう少し。90分の外の自習向けです。まず**単純基準（Dummy）を戦略ごとに
+比較**し、「どのベースラインを土俵にするか」を意識します。"""),
+            code("""
+                from sklearn.dummy import DummyRegressor, DummyClassifier
+                from sklearn.metrics import mean_absolute_error, accuracy_score
+                from sklearn.model_selection import train_test_split
+
+                tr, va = train_test_split(df, test_size=0.25, random_state=42)
+                print("=== 回帰の単純基準 ===")
+                for strat in ["mean", "median"]:
+                    d = DummyRegressor(strategy=strat).fit(tr[["molecular_weight"]], tr["yield_pct"])
+                    print(f"{strat:14s} MAE={mean_absolute_error(va['yield_pct'], d.predict(va[['molecular_weight']])):.2f}")
+                print("=== 分類の単純基準 ===")
+                for strat in ["most_frequent", "stratified", "uniform"]:
+                    d = DummyClassifier(strategy=strat, random_state=42).fit(tr[["molecular_weight"]], tr["active"])
+                    print(f"{strat:14s} accuracy={accuracy_score(va['active'], d.predict(va[['molecular_weight']])):.3f}")
+            """),
+            markdown("""### 出力の読み方
+
+- 回帰は`mean`と`median`でMAEが少し違います。分布が歪んでいると`median`が有利なことも。
+- 分類の`most_frequent`は正解率が高く見えますが、これは第8回で学ぶ「不均衡の罠」。`stratified`/`uniform`はランダムに近い基準です。
+- 本命モデルは、**これらのうち最も手強い基準**を超えて初めて価値があります。"""),
+            markdown("""### 予測時点チェックを関数にする
+
+第5回本編の「使える列／使えない列」を、候補リストから自動で仕分ける関数にします。自社データでも
+使い回せる、実務的な安全装置です。"""),
+            code("""
+                def check_feature_timing(candidate_features, available_now, target):
+                    "特徴量候補を『使える/使えない(リーク)』に仕分ける。"
+                    rows = []
+                    for col in candidate_features:
+                        if col == target:
+                            verdict = "目的変数(使わない)"
+                        elif col in available_now:
+                            verdict = "使える"
+                        else:
+                            verdict = "使えない(予測時点で未確定)"
+                        rows.append({"列": col, "判定": verdict})
+                    return pd.DataFrame(rows)
+
+                check_feature_timing(
+                    ["temperature_c", "logp", "yield_pct", "post_assay_signal", "active"],
+                    available_now=available_at_planning,
+                    target="active",
+                )
+            """),
+            markdown("""### 出力の読み方
+
+`yield_pct`や`post_assay_signal`が「使えない(予測時点で未確定)」と仕分けられます。列名を眺めるだけでなく、
+**このチェックを通してから特徴量を確定する**運用にすれば、リークの多くを機械的に防げます。"""),
+            markdown("""### 期待値で「試すか否か」を決める
+
+活性確率を予測できたとして、「その条件を追試すべきか」を**期待利益**で判断する簡単な例です。
+確率×利益からコストを引いて、プラスなら試す。第5回・第8回のコスト最適閾値の考え方の土台です。"""),
+            code("""
+                import numpy as np
+
+                proba = np.array([0.10, 0.40, 0.60, 0.85])   # 各条件の活性確率（仮）
+                gain_if_active, cost_of_test = 100, 20
+                table = pd.DataFrame({"活性確率": proba})
+                table["期待利益"] = proba * gain_if_active - cost_of_test
+                table["試す?"] = table["期待利益"] > 0
+                table.round(1)
+            """),
+            markdown("""### 出力の読み方
+
+期待利益がプラスの条件だけ「試す?=True」になります。ここでは損益分岐の確率は`cost/gain=0.2`。
+つまり**活性確率20%以上なら試す**が最適で、これがそのまま判定閾値になります。「閾値0.5」が絶対でない
+理由が、利益の式から自然に出てくることを確認してください。"""),
         ],
     )
 
@@ -1795,6 +2089,68 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 - **AUC≫0.5（0.8以上など）**：見分けがつく＝分布がずれており、手元のCVは本番を過大評価しがち。
 - このデータは同じ生成過程なのでAUCは0.5付近のはず。実データでこの値が高ければ、時系列や機器差など「ずれの原因」を探します。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+交差検証の中身を、あえて手作りして仕組みを体で理解します。90分の外の自習向けです。
+`cross_val_score`が内部でやっていることを、`for`ループで書き下します。"""),
+            code("""
+                import numpy as np
+                from sklearn.tree import DecisionTreeClassifier
+                from sklearn.metrics import f1_score
+
+                data = df.dropna(subset=features).reset_index(drop=True)
+                Xa, ya = data[features], data["active"]
+                k = 5
+                fold_id = np.arange(len(Xa)) % k          # 位置でfoldを割り当てる（デモ用）
+                scores = []
+                for f in range(k):
+                    is_valid = fold_id == f
+                    m = DecisionTreeClassifier(max_depth=4, random_state=42).fit(Xa[~is_valid], ya[~is_valid])
+                    scores.append(f1_score(ya[is_valid], m.predict(Xa[is_valid])))
+                print("手作りk-fold F1:", [round(s, 3) for s in scores])
+                print("平均:", round(np.mean(scores), 3))
+            """),
+            markdown("""### 出力の読み方
+
+「4つのfoldで学習→残り1つで検証」を5回繰り返し、平均しています。これが`cross_val_score`の正体です。
+中身が分かると、**分割の乱数や層化（stratify）を変えると平均が動く**ことも納得できます。"""),
+            markdown("""### 時系列分割：未来で過去を検証しない
+
+`experiment_date`で並べ、`TimeSeriesSplit`で「過去で学習→未来で検証」を繰り返します。実運用が
+「過去データで学習し、これから来る試料を予測する」形なら、この分割が最も現実に近い評価です。"""),
+            code("""
+                from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+                from sklearn.pipeline import make_pipeline
+                from sklearn.impute import SimpleImputer
+
+                time_sorted = df.sort_values("experiment_date")
+                est = make_pipeline(SimpleImputer(strategy="median"), DecisionTreeClassifier(max_depth=4, random_state=42))
+                tscv = TimeSeriesSplit(n_splits=5)
+                ts_scores = cross_val_score(est, time_sorted[features], time_sorted["active"], cv=tscv, scoring="f1")
+                print("時系列分割F1:", ts_scores.round(3), " 平均:", round(ts_scores.mean(), 3))
+            """),
+            markdown("""### 出力の読み方
+
+各foldは「それまでの期間」で学習し「直後の期間」で検証します。前半のfoldは学習データが少なく不安定に
+なりがち。時間で性能が変わるなら、ランダム分割より厳しい（現実的な）数字が出ます。"""),
+            markdown("""### shuffleの有無で結果は変わる
+
+`KFold`の`shuffle`を切り替えて比較します。データが何らかの順序（日付・バッチ順など）で並んでいると、
+`shuffle=False`は偏った分割になり、スコアが不安定・楽観/悲観に振れることがあります。"""),
+            code("""
+                from sklearn.model_selection import KFold
+
+                for shuffle in [False, True]:
+                    kf = KFold(5, shuffle=shuffle, random_state=42 if shuffle else None)
+                    s = cross_val_score(est, df[features], df["active"], cv=kf, scoring="f1")
+                    print(f"shuffle={str(shuffle):5s}: {s.round(3)}  平均={s.mean():.3f}")
+            """),
+            markdown("""### 出力の読み方
+
+2つの平均やばらつきが違えば、**データの並び順が結果に影響している**証拠。ふつうは`shuffle=True`が無難ですが、
+時系列データでは`shuffle`してはいけません（未来が学習に混ざる）。「どう並んでいるか」を意識して分割を選びます。"""),
+        ],
     )
 
     # ---- 第7回 ----
@@ -1960,6 +2316,67 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 - 10〜90%区間なので、被覆率は**理想80%**に近いほど区間が正直。大きく下回れば区間が狭すぎ（自信過剰）、上回れば広すぎです。
 - 表の8件で、**実測が下限〜上限に収まっているか**を目で確認します。幅の広い試料はモデルが自信を持てていない試料です。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+線形モデルの正則化や非線形化を試します。90分の外の自習向けです。まず**RidgeとLasso**を、正則化の
+強さ`alpha`を変えて比較します（`alpha`が大きいほど係数を抑え、過学習を防ぐ）。"""),
+            code("""
+                import numpy as np
+                from sklearn.linear_model import Ridge, Lasso
+                from sklearn.preprocessing import StandardScaler
+                from sklearn.model_selection import cross_val_score, KFold
+
+                cv = KFold(5, shuffle=True, random_state=42)
+                rows = []
+                for alpha in [0.01, 0.1, 1.0, 10.0]:
+                    for name, reg in {"Ridge": Ridge(alpha=alpha), "Lasso": Lasso(alpha=alpha, max_iter=5000)}.items():
+                        pipe = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), reg)
+                        mae = -cross_val_score(pipe, df[features], df["yield_pct"], cv=cv, scoring="neg_mean_absolute_error").mean()
+                        rows.append({"モデル": name, "alpha": alpha, "MAE": mae})
+                pd.DataFrame(rows).pivot(index="alpha", columns="モデル", values="MAE").round(3)
+            """),
+            markdown("""### 出力の読み方
+
+`alpha`を変えるとMAEが変わり、最適な強さがあることが分かります。強すぎると単純になりすぎ（未学習）、
+弱すぎると過学習寄り。RidgeとLassoで最適`alpha`が違うのも普通です。**正則化は複雑さを調整するダイヤル**です。"""),
+            markdown("""### 多項式特徴量で「曲がり」を線形モデルに教える
+
+線形回帰は直線しか引けませんが、`PolynomialFeatures`で二乗や交互作用の列を足すと、曲がった関係も
+表せます。次数を上げすぎると過学習するので、交差検証で確かめます。"""),
+            code("""
+                from sklearn.preprocessing import PolynomialFeatures
+                from sklearn.linear_model import LinearRegression
+
+                for degree in [1, 2, 3]:
+                    pipe = make_pipeline(
+                        SimpleImputer(strategy="median"), StandardScaler(),
+                        PolynomialFeatures(degree, include_bias=False), LinearRegression(),
+                    )
+                    mae = -cross_val_score(pipe, df[features], df["yield_pct"], cv=cv, scoring="neg_mean_absolute_error").mean()
+                    print(f"多項式次数{degree}: MAE={mae:.3f}")
+            """),
+            markdown("""### 出力の読み方
+
+次数2で、温度の山型（第4回）を線形モデルが表せるようになり、MAEが下がることが多いはず。ただし次数3で
+悪化したら過学習のサイン。「複雑にすれば良い」ではなく、**交差検証が下がる範囲でだけ複雑にする**が原則です。"""),
+            markdown("""### 部分依存プロット：モデルは各変数をどう使っているか
+
+`PartialDependenceDisplay`は、「他を平均的に保ったまま、ある変数を動かすと予測がどう変わるか」を
+描きます。モデルが温度の山型を学べているかを、目で確認できます。"""),
+            code("""
+                from sklearn.inspection import PartialDependenceDisplay
+
+                rf = make_pipeline(SimpleImputer(strategy="median"), RandomForestRegressor(n_estimators=200, max_depth=6, random_state=42)).fit(df[features], df["yield_pct"])
+                PartialDependenceDisplay.from_estimator(rf, df[features], ["temperature_c", "concentration_m"])
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+温度の曲線が**山型**（中ほどで予測収率が最大）になっていれば、モデルは第4回で見た構造を学べています。
+部分依存プロットは、ブラックボックスに見える木モデルの「考え方」を説明する強力な道具で、
+研究者への説明資料としても有効です。"""),
+        ],
     )
 
     # ---- 第8回 ----
@@ -2114,6 +2531,76 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 `balanced`にすると**recallが上がりやすい**（活性を見つけにいく）反面、precisionやF1は下がることもあります。
 「閾値で調整」と「重みで調整」は似た効果を持つ別の道具。どちらが目的に合うかを、指標を見て選びます。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+分類の評価を、曲線と閾値でさらに掘り下げます。90分の外の自習向けです。まず2モデルの
+**適合率-再現率曲線**と**ROC曲線**を並べます。"""),
+            code("""
+                from sklearn.linear_model import LogisticRegression
+                from sklearn.ensemble import RandomForestClassifier
+                from sklearn.metrics import PrecisionRecallDisplay, RocCurveDisplay
+
+                candidates = {
+                    "ロジスティック": make_pipeline(SimpleImputer(strategy="median"), LogisticRegression(max_iter=1000)),
+                    "Random Forest": make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=200, max_depth=5, random_state=42)),
+                }
+                fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+                for name, est in candidates.items():
+                    est.fit(X_train, y_train)
+                    PrecisionRecallDisplay.from_estimator(est, X_valid, y_valid, ax=axes[0], name=name)
+                    RocCurveDisplay.from_estimator(est, X_valid, y_valid, ax=axes[1], name=name)
+                axes[0].set_title("適合率-再現率曲線"); axes[1].set_title("ROC曲線")
+                axes[1].plot([0, 1], [0, 1], "--", color="gray")
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+- **PR曲線**は右上に張り付くほど良い。不均衡データでは、この曲線とその面積(PR-AUC)がROCより実態を映します。
+- **ROC曲線**は左上に張り付くほど良い。凡例のAUCで一目比較できます。
+- 2モデルの曲線が交差するなら、**どの動作点（閾値）で使うかによって優劣が変わる**ということです。"""),
+            markdown("""### 目標recallを満たす閾値を逆算する
+
+「活性の見逃しは9割以上防ぎたい（recall≧0.9）」のような要件から、それを満たしつつprecisionが最大の
+閾値を選びます。要件を先に決め、閾値を後から合わせる実務的なやり方です。"""),
+            code("""
+                import numpy as np
+                from sklearn.metrics import precision_recall_curve
+
+                proba = candidates["Random Forest"].predict_proba(X_valid)[:, 1]
+                prec, rec, thr = precision_recall_curve(y_valid, proba)
+                target_recall = 0.9
+                ok = rec[:-1] >= target_recall
+                if ok.any():
+                    idx = np.argmax(np.where(ok, prec[:-1], -1))
+                    print(f"recall>={target_recall} を満たす閾値: {thr[idx]:.3f}  precision={prec[idx]:.3f}  recall={rec[idx]:.3f}")
+                else:
+                    print("目標recallを満たす点がありません")
+            """),
+            markdown("""### 出力の読み方
+
+選ばれた閾値は0.5より低いはず（見逃しを減らすには「活性」と判定する範囲を広げる）。その代償に
+precisionが下がります。**要件→閾値**の順で決めると、恣意的な0.5から卒業できます。"""),
+            markdown("""### 交差検証で混同行列を集計する
+
+1回の検証ではなく、`cross_val_predict`で全データのOOF予測を作り、混同行列を集計します。1回分より
+安定した内訳が見えます。"""),
+            code("""
+                from sklearn.model_selection import cross_val_predict, StratifiedKFold
+                from sklearn.metrics import confusion_matrix
+
+                oof = cross_val_predict(
+                    make_pipeline(SimpleImputer(strategy="median"), LogisticRegression(max_iter=1000)),
+                    df[features], df["active"], cv=StratifiedKFold(5, shuffle=True, random_state=42),
+                )
+                cm = confusion_matrix(df["active"], oof)
+                display(pd.DataFrame(cm, index=["実:非活性", "実:活性"], columns=["予:非活性", "予:活性"]))
+            """),
+            markdown("""### 出力の読み方
+
+全420件を1件ずつ「その行を学習に使わないモデル」で予測した集計です。右上（偽陽性）と左下（偽陰性）の
+大きさを比べ、**このモデルがどちらの誤りをしやすいか**を把握します。改善の方向づけに使えます。"""),
+        ],
     )
 
     # ---- 第9回 ----
@@ -2154,7 +2641,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
                 """),
                 markdown("""## TRY：列ごとの前処理を組み立てて、モデルまで繋ぐ
 
-読み方の地図：
+各部品の役割：
 
 - `numeric_process`：数値列の下ごしらえ（欠損補完→標準化）を並べた小さなPipeline。
 - `categorical_process`：カテゴリ列の下ごしらえ（欠損補完→One-Hot）。
@@ -2269,6 +2756,68 @@ sklearnに用意された変換だけでなく、**自分の化学知識を前�
 
 `best_params_`が選ばれた補完戦略、`best_score_`がそのときの交差検証F1です。ポイントは、**前処理も
 モデル設定と同じ土俵で、リークなく比較・選択できる**こと。Pipelineにまとめておいたからこそ可能になります。"""),
+        ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+Pipelineをさらに実務的に使い込みます。90分の外の自習向けです。まず`make_column_selector`で、
+**列の型（数値/文字）から自動で担当を振り分ける**書き方。列名を手で並べる手間が消えます。"""),
+            code("""
+                from sklearn.pipeline import make_pipeline
+                from sklearn.compose import make_column_selector, make_column_transformer
+
+                auto_pre = make_column_transformer(
+                    (make_pipeline(SimpleImputer(strategy="median"), StandardScaler()), make_column_selector(dtype_include="number")),
+                    (make_pipeline(SimpleImputer(strategy="most_frequent"), OneHotEncoder(handle_unknown="ignore")), make_column_selector(dtype_include="object")),
+                )
+                auto_model = make_pipeline(auto_pre, LogisticRegression(max_iter=1000)).fit(X_train, y_train)
+                print("列の型で自動振り分けした検証精度:", round(auto_model.score(X_valid, y_valid), 3))
+            """),
+            markdown("""### 出力の読み方
+
+`make_column_selector(dtype_include="number")`が数値列を、`"object"`が文字列列を自動で拾います。列が
+増減しても書き換え不要。実データで列数が多いときに効きます。`.score`は分類では既定でaccuracyを返します。"""),
+            markdown("""### 前処理とモデルを「まとめて」探索する
+
+前処理の設定とモデルのハイパーパラメータを、1つの`GridSearchCV`で同時に探します。すべてPipelineの
+内側なので、リークなく公平に比較できます。"""),
+            code("""
+                from sklearn.model_selection import GridSearchCV
+                from sklearn.ensemble import RandomForestClassifier
+
+                full = Pipeline([("前処理", preprocess), ("予測", RandomForestClassifier(random_state=42))])
+                grid = {
+                    "前処理__数値列__欠損補完__strategy": ["median", "mean"],
+                    "予測__max_depth": [4, 6, None],
+                    "予測__n_estimators": [200, 300],
+                }
+                search = GridSearchCV(full, grid, cv=5, scoring="f1")
+                search.fit(X_train, y_train)
+                print("最良設定:", search.best_params_)
+                print("最良CV F1:", round(search.best_score_, 3))
+            """),
+            markdown("""### 出力の読み方
+
+前処理（補完戦略）とモデル（深さ・木の本数）の**最良の組み合わせ**が一度に選ばれます。組合せは
+2×3×2=12通り×5分割=60回の学習。前処理も探索対象にできるのが、Pipeline最大の利点です。"""),
+            markdown("""### 学習済みPipelineを保存して再利用する
+
+選ばれた最良のPipelineを`joblib`で保存し、読み直しても同じ予測になることを確かめます。前処理ごと
+保存されるので、配布先は`predict`するだけです（第15回の永続化の先取り）。"""),
+            code("""
+                import joblib
+                import numpy as np
+
+                path = ROOT / "workspace" / "pipeline_09.joblib"
+                joblib.dump(search.best_estimator_, path)
+                loaded = joblib.load(path)
+                assert np.array_equal(search.best_estimator_.predict(X_valid), loaded.predict(X_valid)), "保存前後で予測が不一致"
+                print("保存・読込で同じ予測:", path)
+            """),
+            markdown("""### 出力の読み方
+
+`assert`が通れば、前処理込みのPipelineが丸ごと保存・復元できたということ。「モデルだけ保存して前処理を
+忘れる」という実務で頻発する事故を、Pipeline化で防げます。"""),
         ],
     )
 
@@ -2420,6 +2969,72 @@ XGBoostが入っていれば試します（`uv sync --extra advanced`）。無�
 XGBoostのF1が、既に見たGradient Boostingと**近い値**になるはずです。「専用ライブラリ＝必ず勝つ」では
 ありません。ライブラリの新しさより、**フェアな比較の枠組み**の方がずっと大事、という締めくくりです。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+モデル比較をさらに多面的に。90分の外の自習向けです。まず2モデルの**学習曲線**を並べ、
+「データ追加が効くタイプか」を比べます。"""),
+            code("""
+                import numpy as np
+                import matplotlib.pyplot as plt
+                from sklearn.model_selection import learning_curve
+
+                fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+                for ax, name in zip(axes, ["Logistic", "Random Forest"]):
+                    sizes, tr, va = learning_curve(models[name], df[features], df["active"], cv=5, scoring="f1", train_sizes=np.linspace(0.2, 1.0, 5))
+                    ax.plot(sizes, tr.mean(1), "o-", label="学習")
+                    ax.plot(sizes, va.mean(1), "o-", label="検証")
+                    ax.set_title(name); ax.set_xlabel("学習件数"); ax.set_ylabel("F1"); ax.legend()
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+- 線形モデル（Logistic）は学習と検証の差が小さい（過学習しにくい）が頭打ちも早い傾向。
+- Random Forestは差が大きい（表現力が高く過学習寄り）が、データを増やすと伸びる余地があることも。
+- **モデルによってデータ追加の効き方が違う**。増やすか、特徴量を工夫するかの判断材料になります。"""),
+            markdown("""### 複数指標を一度に比べる
+
+F1だけでなく、precision・recall・ROC-AUCも同時に交差検証で出します。用途によって重視する指標が
+違う（第8回）ので、多面的に見て選びます。"""),
+            code("""
+                from sklearn.model_selection import cross_validate, StratifiedKFold
+
+                cv = StratifiedKFold(5, shuffle=True, random_state=42)
+                scoring = ["f1", "precision", "recall", "roc_auc"]
+                rows = []
+                for name, est in models.items():
+                    if name == "Dummy":
+                        continue
+                    res = cross_validate(est, df[features], df["active"], cv=cv, scoring=scoring)
+                    rows.append({"モデル": name, **{m: res[f"test_{m}"].mean() for m in scoring}})
+                pd.DataFrame(rows).round(3)
+            """),
+            markdown("""### 出力の読み方
+
+あるモデルはrecallが高くprecisionが低い、別のモデルは逆、ということが起きます。**単一のF1では隠れる
+個性**が見えます。「見逃しを避けたい」ならrecall列、「空振りを避けたい」ならprecision列で選びます。"""),
+            markdown("""### 性能とコストの釣り合い（木の本数）
+
+木の本数（`n_estimators`）を増やすと精度は上がりやすい一方、学習時間も延びます。どこで頭打ちになるかを
+見て、**費用対効果**で選びます。"""),
+            code("""
+                import time
+                from sklearn.pipeline import make_pipeline
+                from sklearn.impute import SimpleImputer
+                from sklearn.metrics import f1_score
+
+                rows = []
+                for n in [50, 100, 200, 400]:
+                    est = make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=n, max_depth=6, random_state=42))
+                    t = time.perf_counter(); est.fit(X_train, y_train); sec = time.perf_counter() - t
+                    rows.append({"n_estimators": n, "学習秒": sec, "検証F1": f1_score(y_valid, est.predict(X_valid))})
+                pd.DataFrame(rows).round({"学習秒": 4, "検証F1": 3})
+            """),
+            markdown("""### 出力の読み方
+
+F1はある本数で頭打ちになり、その先は時間だけ延びるはず。**「もう増やしても得しない」点**を見つけるのが
+チューニングの勘所。本番のデータ量ではこの差が大きくなるので、小さいうちに感覚をつかんでおきます。"""),
+        ],
     )
 
     # ---- 第11回 ----
@@ -2431,9 +3046,9 @@ XGBoostのF1が、既に見たGradient Boostingと**近い値**になるはず�
             [
                 markdown("""## 特徴量設計＝あなたの化学知識をモデルへ渡す
 
-ここは研究者の腕の見せどころです。モデルは与えられた列しか見ません。**「最適温度から離れるほど
-収率が落ちる」**という知識を持っていても、`temperature_c`の生の値だけでは、モデルがその山型を
-学ぶのは大変です。そこで、知識を**計算式**にして新しい列（特徴量）として渡します。これが特徴量設計です。
+モデルは与えられた列しか見ません。**「最適温度から離れるほど収率が落ちる」**という知識を持っていても、
+`temperature_c`の生の値だけでは、モデルがその山型を学ぶのは大変です。そこで、知識を**計算式**にして
+新しい列（特徴量）として渡します。これが特徴量設計です。
 
 鉄則が2つあります。
 1. **予測時点で計算できること**（第5回。実験後の値から作らない）。
@@ -2568,6 +3183,61 @@ RDKitが動けば、SMILES（`CCO`＝エタノール）から分子量やLogPが
 みましょう——自作の`temperature_distance`が残っていれば、知識を式にした狙いが的中したということ。
 選択も交差検証の内側で行うことで、選びすぎ（過学習）を避けています。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+特徴量づくりの引き出しを増やします。90分の外の自習向けです。まず**交互作用特徴量**——2つの列の
+掛け算で「組み合わせの効果」を表します（温度×濃度など）。"""),
+            code("""
+                from sklearn.preprocessing import PolynomialFeatures
+
+                cols = ["temperature_c", "concentration_m"]
+                pair = engineered[cols].fillna(engineered[cols].median())
+                inter = PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)
+                out = inter.fit_transform(pair)
+                display(pd.DataFrame(out, columns=inter.get_feature_names_out(), index=pair.index).head())
+            """),
+            markdown("""### 出力の読み方
+
+元の2列に加え、`temperature_c concentration_m`（掛け算）の列ができます。`interaction_only=True`なので
+二乗は作らず組み合わせだけ。「片方が高いときだけもう片方が効く」ような関係を、モデルへ渡せます。"""),
+            markdown("""### 連続値を区間に区切る（ビニング）
+
+温度のような連続値を4区間に区切ると、非線形な効果を扱いやすくなったり、解釈しやすくなったりします。
+`KBinsDiscretizer`（分位点で等件数に区切る）を使い、区間ごとの平均収率を見ます。"""),
+            code("""
+                from sklearn.preprocessing import KBinsDiscretizer
+
+                temp = engineered[["temperature_c"]].fillna(engineered["temperature_c"].median())
+                binner = KBinsDiscretizer(n_bins=4, encode="ordinal", strategy="quantile")
+                engineered["temp_bin"] = binner.fit_transform(temp).astype(int)
+                display(engineered.groupby("temp_bin")["yield_pct"].mean().round(1))
+            """),
+            markdown("""### 出力の読み方
+
+区間0（低温）〜3（高温）ごとの平均収率が出ます。中間の区間で収率が高い（山型）なら、第4回で見た
+温度の効果と一致。ビニングは効果を見せやすい一方、情報を捨てる面もあるので、元の連続値と併用も検討します。"""),
+            markdown("""### 作った特徴量の効き目を、並べ替え重要度で確かめる
+
+第1・12回で使った並べ替え重要度を、この回で作った特徴量を含めた全体に適用します。自作特徴量が
+上位に来るかを、holdoutで公平に確認します。"""),
+            code("""
+                from sklearn.inspection import permutation_importance
+                from sklearn.model_selection import train_test_split
+                from sklearn.ensemble import RandomForestRegressor
+
+                Xe = engineered[added].fillna(engineered[added].median())
+                Xtr, Xva, ytr, yva = train_test_split(Xe, engineered["yield_pct"], test_size=0.25, random_state=42)
+                rf = RandomForestRegressor(n_estimators=200, max_depth=6, random_state=42).fit(Xtr, ytr)
+                perm = permutation_importance(rf, Xva, yva, scoring="neg_mean_absolute_error", n_repeats=15, random_state=42)
+                pd.DataFrame({"特徴量": added, "重要度": perm.importances_mean}).sort_values("重要度", ascending=False).round(3)
+            """),
+            markdown("""### 出力の読み方
+
+重要度の高い順に並びます。自作の`temperature_distance`や`concentration_per_hour`が上位なら、
+仮説を式にした狙いが的中。低ければ、その仮説はこのデータ・モデルでは効かなかったという学びです。
+**「作る→交差検証で効果確認→重要度で解釈」**の一巡が、特徴量設計の基本サイクルです。"""),
+        ],
     )
 
     # ---- 第12回 ----
@@ -2580,7 +3250,7 @@ RDKitが動けば、SMILES（`CCO`＝エタノール）から分子量やLogPが
                 markdown("""## 「なんとなく良くなった」を卒業する
 
 改善は勢いでやると、後で「なぜ良くなったのか」を説明できません。この回のテーマは、**理由を後から
-説明できる実験のやり方**です。実験科学と同じ原則が効きます。
+説明できる実験のやり方**です。次の原則が効きます。
 
 1. **一度に変えるのは1つだけ**（複数変えると、どれが効いたか分からない）。
 2. **比較条件は固定**（同じ分割・同じ指標）。
@@ -2697,6 +3367,68 @@ Copilotには次の実験案を出してもらってもよいですが、**優�
 - 上位で`0を跨ぐ=False`の特徴量が、自信を持って「効いている」と言える列。ここから**反証可能な次の仮説**
 （「この列を強める特徴量を足したら改善するのでは？」）を1つ立てて、COREの実験ログへ戻ります。これが改善サイクルです。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+実験の回し方を仕組み化します。90分の外の自習向けです。まず**実験を1行で記録する関数**を作り、
+複数の設定を回してログに溜めます。手作業のコピペより、記録漏れが減ります。"""),
+            code("""
+                from sklearn.model_selection import cross_val_score
+
+                experiment_log = []
+                def run_experiment(name, estimator, note=""):
+                    "設定を交差検証で評価し、実験ログへ1行追加して返す。"
+                    scores = cross_val_score(estimator, X, y, cv=cv, scoring="f1")
+                    row = {"実験名": name, "F1平均": round(scores.mean(), 3), "F1_SD": round(scores.std(), 3), "気づき": note}
+                    experiment_log.append(row)
+                    return row
+
+                run_experiment("depth3", make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=150, max_depth=3, random_state=42)), "浅め")
+                run_experiment("depth6", make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=150, max_depth=6, random_state=42)), "標準")
+                run_experiment("leaf4", make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=150, max_depth=6, min_samples_leaf=4, random_state=42)), "葉を大きく")
+                pd.DataFrame(experiment_log)
+            """),
+            markdown("""### 出力の読み方
+
+3つの実験がログにたまり、F1平均・ばらつき・気づきが1表に。**変更点と結果がセットで残る**ので、後から
+「なぜこの設定にしたか」を説明できます。関数化しておくと、実験のたびに1行呼ぶだけで済みます。"""),
+            markdown("""### 検証曲線：1つの設定を動かして最適点を探す
+
+`validation_curve`は、1つのハイパーパラメータ（ここでは`max_depth`）を動かし、学習と検証のスコア推移を
+描きます。最適な複雑さが視覚的に分かります。"""),
+            code("""
+                import matplotlib.pyplot as plt
+                from sklearn.model_selection import validation_curve
+
+                depths = [2, 3, 4, 6, 8, 12]
+                tr, va = validation_curve(
+                    make_pipeline(SimpleImputer(strategy="median"), RandomForestClassifier(n_estimators=150, random_state=42)),
+                    X, y, param_name="randomforestclassifier__max_depth", param_range=depths, cv=cv, scoring="f1",
+                )
+                plt.plot(depths, tr.mean(1), "o-", label="学習")
+                plt.plot(depths, va.mean(1), "o-", label="検証")
+                plt.xlabel("max_depth"); plt.ylabel("F1"); plt.legend(); plt.title("検証曲線")
+                plt.tight_layout()
+            """),
+            markdown("""### 出力の読み方
+
+学習F1は深さとともに上がり続けますが、検証F1は途中で頭打ち・下降します。**検証F1が最大になる手前**が
+最適な深さ。2本の乖離が広がるほど過学習が進んでいる、という第6回の読み方がそのまま使えます。"""),
+            markdown("""### 実験ログをファイルに残す
+
+ログをCSVに保存し、読み直します。セッションをまたいで実験を積み上げられ、再現性（第15回）にもつながります。"""),
+            code("""
+                out = ROOT / "workspace" / "experiment_log.csv"
+                pd.DataFrame(experiment_log).to_csv(out, index=False)
+                reloaded = pd.read_csv(out)
+                print("保存＆再読込した実験ログ:", out)
+                display(reloaded)
+            """),
+            markdown("""### 出力の読み方
+
+`workspace/experiment_log.csv`に保存され、読み直しても同じ内容。**記録を残す文化**が、思いつきの改善を
+再現可能な知見へ変えます。良い変更も悪い変更も、まずログに残すことが第12回の核心です。"""),
+        ],
     )
 
     # ---- 第13回 ----
@@ -2709,7 +3441,7 @@ Copilotには次の実験案を出してもらってもよいですが、**優�
                 markdown("""## コンペは「これまでの総合演習」
 
 Kaggle（や、この教材のローカル模擬コンペ）は、第1〜12回で学んだことを1本の流れにする総合演習です。
-新しい魔法はありません。むしろ大事なのは、**コンペの説明を、いつもの分析手順へ翻訳する**こと。
+新しい手法は増えません。大事なのは、**コンペの説明を、いつもの分析手順へ翻訳する**こと。
 
 最初に必ず4点を確認します：**目的（何を予測）／評価指標／データ（trainとtestの違い）／提出形式**。
 まずデータを開いて形を見ます。"""),
@@ -2844,6 +3576,63 @@ Kaggle Titanicを使う場合も、最初にこの4点（目的・指標・train
 正しい提出は「提出形式OK」を返し、`active`に5を混ぜた壊れた提出は「異常を検出: 予測値は0/1に…」で
 弾かれます。**弾かれることを確認して初めて**、検査関数は信頼できます。本番の提出前に必ず通す関数として
 手元に残しておきましょう。"""),
+        ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+提出づくりを効率化します。90分の外の自習向けです。まず**どんなモデルでも提出CSVを作る関数**を用意し、
+複数モデルの提出を量産します。"""),
+            code("""
+                from sklearn.base import clone
+                from sklearn.linear_model import LogisticRegression
+
+                def make_submission(estimator, name):
+                    "モデルを全trainで学習し、testを予測して提出CSVを保存する。"
+                    est = clone(estimator).fit(train[features], train[target])
+                    sub = pd.DataFrame({"sample_id": test["sample_id"], "active": est.predict(test[features])})
+                    path = ROOT / "workspace" / f"submission_{name}.csv"
+                    sub.to_csv(path, index=False)
+                    print(f"{name}: 保存 {path.name}  陽性率={sub['active'].mean():.3f}")
+                    return sub
+
+                make_submission(model, "rf")
+                _ = make_submission(Pipeline([("前処理", preprocess), ("モデル", LogisticRegression(max_iter=1000))]), "logit")
+            """),
+            markdown("""### 出力の読み方
+
+2つの提出が`workspace/`に保存されます。**陽性率**（活性と予測した割合）がモデル間で大きく違うなら、
+判定の癖が違うということ。`clone`で毎回まっさらなモデルから学習しているので、状態の混ざりがありません。"""),
+            markdown("""### どの特徴量が効いているか（提出モデルの中身）
+
+提出に使ったRandom Forestの特徴量重要度を、Pipelineの中から取り出します。One-Hot後の列名で表示されます。"""),
+            code("""
+                fitted = model.named_steps["モデル"]
+                names = model.named_steps["前処理"].get_feature_names_out()
+                imp = pd.DataFrame({"特徴量": names, "重要度": fitted.feature_importances_}).sort_values("重要度", ascending=False)
+                display(imp.head(10).round(3))
+            """),
+            markdown("""### 出力の読み方
+
+上位の特徴量が、モデルが判定に使っている主な手がかりです。第1・12回のとおり不純度重要度は偏りが
+あるので、余裕があれば並べ替え重要度でも確認します。化学的に納得できる列が上位なら、ひとまず安心です。"""),
+            markdown("""### OOFとholdout、2つの手元推定を比べる
+
+提出せずに性能を見積もる方法は複数あります。**OOF**（第13回本編）と、単純な**holdout**（1回の取り置き）を
+比べ、両者が近いかを確認します。近ければ手元の検証は安定しています。"""),
+            code("""
+                from sklearn.model_selection import cross_val_predict, train_test_split, StratifiedKFold
+                from sklearn.metrics import f1_score
+
+                oof = cross_val_predict(clone(model), train[features], train[target], cv=StratifiedKFold(5, shuffle=True, random_state=42))
+                Xh_tr, Xh_va, yh_tr, yh_va = train_test_split(train[features], train[target], test_size=0.25, random_state=0, stratify=train[target])
+                hold = clone(model).fit(Xh_tr, yh_tr)
+                print("OOF F1     :", round(f1_score(train[target], oof), 3))
+                print("holdout F1 :", round(f1_score(yh_va, hold.predict(Xh_va)), 3))
+            """),
+            markdown("""### 出力の読み方
+
+2つが近ければ、手元の推定は信頼できます。OOFは全データを検証に使えるぶん安定しやすく、holdoutは
+1回きりなので振れやすい。**複数の見積もりが一致するか**を確認する習慣が、コンペでも実務でも効きます。"""),
         ],
     )
 
@@ -3007,6 +3796,61 @@ AUCが0.5付近なら、train/testは似ていて手元CVは信頼できます�
 ありませんが、こうした地味で確実な積み上げが、コンペでも実務でも効きます。「1回の高スコア」より
 「**再現できる改善**」を選ぶ——この教材全体の締めくくりの姿勢です。"""),
         ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+改善の詰めを、OOFを使って安全に行います（すべて上のDEEP DIVEで作った`oof`を再利用）。90分の外の
+自習向けです。まず**2モデルの重み付き平均（ブレンド）**の最適な重みを、OOF上で探します。"""),
+            code("""
+                import numpy as np
+                from sklearn.metrics import f1_score
+
+                y_true = improved_train[target]
+                best = None
+                for w in np.linspace(0, 1, 11):
+                    blend = w * oof["rf"] + (1 - w) * oof["hgb"]
+                    f1 = f1_score(y_true, (blend >= 0.5).astype(int))
+                    if best is None or f1 > best[1]:
+                        best = (round(w, 1), round(f1, 3))
+                print(f"rf重み={best[0]} のときOOF F1最大={best[1]}")
+            """),
+            markdown("""### 出力の読み方
+
+重み0はhgbのみ、1はrfのみ、途中が混合。**単体より混合が良い重み**が見つかれば、ブレンドの価値あり。
+OOFで重みを決めるのは、テストに触れずに（リークなく）調整するためです。ただし重みを探しすぎると
+OOFに過剰適合するので、探索は粗め（ここは11点）にとどめます。"""),
+            markdown("""### 判定閾値もOOFで最適化する
+
+第8回の閾値調整を、OOF確率に対して行います。0.5に固定せず、F1が最大になる閾値を手元で選びます。"""),
+            code("""
+                rows = []
+                for t in np.linspace(0.2, 0.8, 13):
+                    rows.append({"閾値": round(t, 2), "F1": f1_score(y_true, (oof["rf"] >= t).astype(int))})
+                tbl = pd.DataFrame(rows)
+                print("OOFでF1最大の閾値:", tbl.loc[tbl["F1"].idxmax(), "閾値"])
+                tbl.round(3)
+            """),
+            markdown("""### 出力の読み方
+
+F1が最大になる閾値が0.5とずれるなら、閾値調整で無料の改善が得られます。**OOFで選んだ閾値を、最終提出に
+だけ適用**します（検証に使った同じデータで選んで報告しない、という第6・12回の原則を守ります）。"""),
+            markdown("""### 誤分類を群別に分析する
+
+どの化合物系列でよく間違えるかを、OOF予測で集計します。特定の系列に誤りが偏るなら、その系列を
+表す特徴量の不足や、データ不足を疑います。次の改善仮説のきっかけになります。"""),
+            code("""
+                val = improved_train[["scaffold_group", target]].copy()
+                val["oof_pred"] = (oof["rf"] >= 0.5).astype(int)
+                val["誤り"] = val[target] != val["oof_pred"]
+                by_group = val.groupby("scaffold_group").agg(件数=("誤り", "size"), 誤り数=("誤り", "sum"), 誤り率=("誤り", "mean"))
+                display(by_group.sort_values("誤り率", ascending=False).round(3))
+            """),
+            markdown("""### 出力の読み方
+
+誤り率の高い系列が、モデルの弱点。件数が十分あるのに誤り率が高い系列は、**その系列に効く特徴量を
+足す**（第11回）か、**分割を系列単位にする**（第6回）といった次の一手につながります。エラー分析は、
+闇雲なチューニングより効く改善のきっかけです。"""),
+        ],
     )
 
     # ---- 第15回 ----
@@ -3150,6 +3994,66 @@ Copilotへの良かった聞き方 / 自社テーマへ持ち帰りたい考え�
 全15回を貫いた芯は1つ：**「良いスコア」ではなく「意味のある予測」**。予測時点を決め、ベースラインと比べ、
 リークを避け、正しく評価し、1つずつ改善を記録し、限界とともに伝える。この習慣こそが、皆さんが自社
 データへ持ち帰るいちばんの財産です。お疲れさまでした。"""),
+        ],
+        [
+            markdown("""## APPENDIX（任意・追加演習）
+
+「渡せる成果物」を実際に書き出します。90分の外の自習向けです。まず**モデルカードをMarkdown＋JSONで
+保存**し、第三者が読める形にします。"""),
+            code("""
+                import json
+
+                card = build_model_card("活性スクリーナ", reloaded, X_te, y_te, {
+                    "利用者": "実験担当者", "判断": "追試候補の優先順位",
+                    "限界": "新規scaffoldで精度低下の可能性", "禁止": "測定後の列を入力に使うこと",
+                })
+                lines = ["# モデルカード", ""]
+                for _, r in card.iterrows():
+                    lines.append(f"- **{r['項目']}**: {r['内容']}")
+                (ROOT / "workspace" / "model_card.md").write_text("\\n".join(lines), encoding="utf-8")
+
+                meta = {"features": feat, "n_train": int(len(X_tr)), "model": "RandomForest(max_depth=5)"}
+                (ROOT / "workspace" / "model_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+                print("保存: workspace/model_card.md, workspace/model_meta.json")
+                print("\\n".join(lines))
+            """),
+            markdown("""### 出力の読み方
+
+`model_card.md`は人が読む説明書、`model_meta.json`は機械が読む来歴（使った特徴量・学習件数・モデル種別）。
+モデルと一緒にこの2つを残すと、**半年後の自分や引き継ぎ先が再現・判断できます**。"""),
+            markdown("""### ドリフトを模擬する：入力がずれると性能は落ちる
+
+運用後、測定装置のずれなどで入力分布が変わる（ドリフト）ことがあります。テストの温度を系統的に
++20℃ずらして、性能がどれだけ落ちるかを見ます。監視の必要性が体感できます。"""),
+            code("""
+                from sklearn.metrics import f1_score
+
+                drift = X_te.copy()
+                drift["temperature_c"] = drift["temperature_c"] + 20
+                f1_before = f1_score(y_te, reloaded.predict(X_te))
+                f1_after = f1_score(y_te, reloaded.predict(drift))
+                print(f"ドリフト前 F1={f1_before:.3f} → 温度+20℃ドリフト後 F1={f1_after:.3f}")
+            """),
+            markdown("""### 出力の読み方
+
+ドリフト後にF1が下がれば、**入力の変化が性能に効く**証拠。だから運用では、入力分布や性能を定期監視し、
+下がったら再学習する仕組みが要ります（第6回のadversarial validationは、この監視にも使えます）。"""),
+            markdown("""### 成績表をファイルに書き出す
+
+`classification_report`を表として保存します。発表資料や引き継ぎに添付できる、機械可読な成績表です。"""),
+            code("""
+                from sklearn.metrics import classification_report
+
+                rep = classification_report(y_te, reloaded.predict(X_te), target_names=["非活性", "活性"], output_dict=True)
+                rep_df = pd.DataFrame(rep).T.round(3)
+                rep_df.to_csv(ROOT / "workspace" / "classification_report.csv")
+                display(rep_df)
+            """),
+            markdown("""### 出力の読み方、そしてこの教材の終わりに
+
+クラスごとのprecision/recall/F1と全体のaccuracyが表になり、CSVで保存されます。数字だけを渡すのではなく、
+**モデルカード（用途と限界）＋メタ情報（来歴）＋成績表**をひとまとめに渡す——ここまでできれば、
+「作って終わり」から「使ってもらえる」への橋を渡せています。全15回、おつかれさまでした。"""),
         ],
     )
 
