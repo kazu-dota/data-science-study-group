@@ -12,3 +12,6 @@ data/private/
 data/kaggle/
 outputs/
 work/
+
+# Claude Code session runtime
+.claude/scheduled_tasks.lock

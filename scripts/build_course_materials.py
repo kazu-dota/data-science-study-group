@@ -559,14 +559,18 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
 
             **今日の問い：{question}**
 
-            上から順に実行してください。`TRY`は全員、`CHANGE`は値を1つ変える練習、
-            `CHALLENGE`は余裕がある人向けです。`DEEP DIVE`は経験者や自習向けの発展です。
+            **セルの動かし方**：各セル（灰色の枠）を選んで `Shift + Enter`（またはセル左の▷ボタン）を押すと実行できます。
+            **上から順に**実行してください。前のセルを飛ばすと、後のセルでエラーになります。
+
+            `TRY`は全員、`CHANGE`は値を1つ変える練習、`CHALLENGE`は余裕がある人向けです。
+            `DEEP DIVE`・`APPENDIX`は経験者や自習向けの発展で、飛ばしても本編は完結します。
             分からないコードは、セル全体ではなく気になる数行をM365 Copilotへ貼って相談します。
             """
         ).format(title=title, question=question)
     )
     setup = code(
         """
+        # 【準備セル】教材フォルダの場所を自動で見つけます。中身は今は理解しなくてOK、そのまま実行してください。
         from pathlib import Path
 
         def find_repo_root(start=Path.cwd()):
@@ -761,6 +765,7 @@ def common_load_cell() -> dict:
 
 
 FONT_SNIPPET = """
+    # グラフの日本語が文字化けしないようにする設定です。中身は今は理解しなくてOK、そのまま実行してください。
     import matplotlib.pyplot as plt
     from matplotlib import font_manager
     for _name in ["Yu Gothic", "Meiryo", "Hiragino Sans", "Noto Sans CJK JP", "IPAexGothic"]:
@@ -847,11 +852,12 @@ def build_notebooks() -> None:
                 markdown("""### コードの読み方（1行ずつ）
 
 - `features = [...]`：モデルへ渡す**入力列の名前リスト**。ここでは分子の性質5つを選びました。
-- `X = df[features].fillna(...)`：`X`は入力の表。`fillna(...median())`は、欠損を**その列の中央値で埋める**処理です（モデルは空欄を扱えないため）。
+- `X = df[features].fillna(...)`：`X`は入力の表。`fillna(...median())`は、欠損を**その列の中央値で埋める**処理です（モデルは空欄を扱えないため）。※この回では簡単のため**分割の前**に補完していますが、本来は分割の後に行うべきで、その理由は第6回で学びます。
 - `y = df["active"]`：`y`は答えの列（活性=1／非活性=0）。
-- `train_test_split(...)`：データを**学習用（train）と検証用（valid）に分ける**関数。`test_size=0.25`で25%を検証用に取り置きます。未知データでの成績を測るため、検証用は学習に使いません。`random_state=42`は分け方を固定して**毎回同じ結果**にするおまじない、`stratify=y`は活性の割合が両側で揃うようにする指定です。
+- `train_test_split(...)`：データを**学習用（train）と検証用（valid）に分ける**関数。`test_size=0.25`で25%を検証用に取り置きます。未知データでの成績を測るため、検証用は学習に使いません。`random_state=42`は分け方を固定して**毎回同じ結果**にするための指定、`stratify=y`は活性の割合が両側で揃うようにする指定です。
 - `.fit(X_train, y_train)`：**学習**。過去データ（train）から関係を覚えます。
 - `.predict(X_valid)`：覚えた関係を**検証用の未知データ**へ当てはめて予測します。
+- `print(f"...{accuracy_score(...):.3f}...")`：`f"..."`は文字と計算結果を混ぜて表示する書き方（f文字列）。`{値:.3f}`は**小数第3位まで**表示する指定です。桁を変えたいときはこの数字を変えます。
 
 ### 出力の読み方
 
@@ -1761,7 +1767,8 @@ EDA（探索的データ分析）は、いきなりモデルを作らず、ま�
 
 - **MAE（平均絶対誤差）**：予測が平均どれだけ外れるか。単位は収率と同じ%。「平均値だけ」でこの誤差、というものさしです。
 - **多数派だけの正解率**が高く出ることに驚くかもしれません。活性が少ないデータでは「全部を多数派と答える」だけで正解率が高くなります。**だから正解率は当てにならない**——第8回でF1を学ぶ動機になります。
-- 本命モデルは、この2つの数字を**はっきり上回って初めて価値がある**と考えます。"""),
+- 本命モデルは、この2つの数字を**はっきり上回って初めて価値がある**と考えます。
+- なお`Dummy`は答え(`y`)だけを見て予測するため、ここで渡している`molecular_weight`列の中身は使いません（形式的な引数です）。"""),
                 markdown("""## CORE深掘り：リーク候補を自動で洗い出す
 
 「どの列がリークか」を人手で全部見るのは大変です。目的変数と**極端に強く連動する列**は、結果由来の
@@ -1832,7 +1839,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 
 見逃しを避けたい探索段階なら**recall**寄り、追試コストが高い絞り込み段階なら**precision**寄り。
 「良いスコア」を追うのではなく、「この予測で何を決め、間違えると何を失うか」から指標と閾値を選びます。
-これがデータサイエンスを"意味のある学び"にする芯です。"""),
+指標や閾値を選ぶときは、常にこの「何を決め、何を失うか」に立ち返ります。"""),
         ],
         [
             markdown("""## APPENDIX（任意・追加演習）
@@ -1956,7 +1963,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
                 markdown("""### 出力の読み方
 
 - `max_depth=None`（無制限）では**学習スコアが1.0近く**まで上がるのに、**検証スコアはそれほど伸びない**——典型的な過学習です。
-- 検証スコアが最も高い深さの手前あたりが「ちょうど良い複雑さ」。学習スコアの高さに惑わされないことが肝心です。
+- 検証スコアが最も高い深さの手前あたりが「ちょうど良い複雑さ」。「学習スコアの高さ」を実力だと勘違いしないことが、ここでの分かれ目です。
 - 教訓：**必ず「未知データ役（検証）」で評価する**。学習データでの高得点は実力ではありません。"""),
                 markdown("""## TRY：リーク列を入れると「不自然に」良くなる
 
@@ -1996,7 +2003,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
                 """),
                 markdown("""### 出力の読み方
 
-このデータでは差は小さいかもしれませんが、**やり方の正しさ**が要点です。全データで前処理する方式は
+このデータでは差は小さいかもしれませんが、ここで確かめたいのは**やり方が正しいかどうか**そのものです。全データで前処理する方式は
 原理的に楽観へ偏ります。`Pipeline`にまとめれば、分割ごとに前処理を学習し直すので安全——だから第9回で
 `Pipeline`を本格的に学びます。"""),
                 markdown("""## CHALLENGE：似た試料を「両側に入れない」分割
@@ -2013,6 +2020,26 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 
 学習側と検証側で**系列(scaffold_group)が重ならない**ことを確認します。新規骨格への予測力を測りたいなら、
 この「群を跨がせない分割」が正しい評価です。ランダム分割より点数は下がりがちですが、それが**本当の実力**です。"""),
+                markdown("""## CORE深掘り：学習・検証・テストの3つに分ける
+
+ここまでは学習用と検証用の2つでした。実務では**3つ**に分けます。**検証(valid)は設定選びに何度でも使い**、
+**テスト(test)は最後の1回だけ**触ります。何度も見た検証データには無意識に合わせ込んでしまうため、
+「一度も見ていないテスト」で最終性能を確かめる、という役割分担です。"""),
+                code("""
+                    from sklearn.model_selection import train_test_split
+
+                    # まずテストを切り分け（最後まで触らない）、残りを学習用と検証用へ
+                    work, test_set = train_test_split(clean, test_size=0.2, random_state=42, stratify=clean["active"])
+                    train_set, valid_set = train_test_split(work, test_size=0.25, random_state=42, stratify=work["active"])
+                    print("学習用:", len(train_set), "件（モデルを学習）")
+                    print("検証用:", len(valid_set), "件（設定選び・改善判断に何度でも使う）")
+                    print("テスト用:", len(test_set), "件（最後の確認まで開かない）")
+                """),
+                markdown("""### 出力の読み方
+
+3つの件数が表示されます。**検証とテストの違い**はサイズではなく**使い方**です。検証は改善のたびに何度でも
+見てよい／テストは最後に1回だけ。この分担を守ると、「検証データに合わせ込んで実力を過大評価する」失敗を
+防げます（この回の振り返り「検証とテストの違いは何か」は、このセルを指させればOKです）。"""),
             ],
         ),
         [
@@ -2037,7 +2064,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
             """),
             markdown("""### 出力の読み方
 
-- **GroupKFild（系列）の平均が最も低く**出るのが普通です。似た試料を跨がせないぶん厳しく、これが新規骨格への実力に近い。
+- **GroupKFold（系列）の平均が最も低く**出るのが普通です。似た試料を跨がせないぶん厳しく、これが新規骨格への実力に近い。
 - 「どの分割が正しいか」は**将来の使い方**で決まります。新しい系列に使うならGroup、同じ系列内での予測ならKFoldでも可。
 - 標準偏差（ばらつき）も見て、平均だけで判断しません。"""),
             markdown("""### ネストCV：設定選びと性能報告を分ける
@@ -2188,7 +2215,12 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 - **RMSE**：大きな外れを二乗で重く見る。「たまの大外し」を嫌う場面向け。
 - **R²（決定係数）**：平均値予測と比べてどれだけ説明できたか（1に近いほど良い、0は平均値並み）。
 
-`neg_...`はsklearnの都合で「大きいほど良い」に符号反転された指標名。表示時に`-`で元へ戻します。"""),
+`neg_...`はsklearnの都合で「大きいほど良い」に符号反転された指標名。表示時に`-`で元へ戻します。
+（scikit-learnの`scoring`は「大きいほど良い」に統一されているため、誤差系の指標は符号が反転しています。）
+
+コード中の`make_pipeline(SimpleImputer(...), モデル)`は、**欠損補完とモデルを1つにまとめて「1個のモデル」の
+ように扱う**ための道具です。こうすると`fit`/`predict`や交差検証がまとめて安全に回せます。仕組みは第9回で
+詳しく学ぶので、ここでは「前処理とモデルをセットにする書き方」とだけ捉えて大丈夫です。"""),
                 code("""
                     from sklearn.model_selection import cross_validate, KFold
 
@@ -2210,7 +2242,8 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 
 - MAEの小さい順に並びます。**「平均値」より各モデルがどれだけMAEを下げたか**が価値です。下げ幅が小さいなら、その特徴量では収率を説明しきれていません。
 - MAEとRMSEの差が大きいモデルは、**たまに大きく外している**サイン（RMSEが大外れを強調するため）。
-- R²が0近くなら「平均値と大差ない」、負なら「平均値より悪い」。**まずベースライン超え**を確認します。"""),
+- R²が0近くなら「平均値と大差ない」、負なら「平均値より悪い」。**まずベースライン超え**を確認します。
+- なお、この`cross_validate`は内部でデータを分割し直して評価します。上のセルで作った`X_train`/`X_valid`はここでは使わず、この後の**残差図**（予測と実測を見る図）で使います。"""),
                 markdown("""## 予測と実測、そして「残差」を絵で見る
 
 数字だけでなく図で確かめます。左は**予測と実測の散布図**（点が対角線に乗るほど良い）、右は
@@ -2428,7 +2461,7 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
 
 - 混同行列は**左上=TN、右下=TP**が当たり、**右上=FP、左下=FN**が外れ。色が濃い（数が多い）マスに注目します。
 - **accuracyは高いのにrecallが低い**、という組み合わせが起きがちです。これは「非活性はよく当てるが、肝心の活性を見逃している」状態。活性が少ないデータでは、accuracyが良く見えてもこの罠にはまります。
-- 「何を重視するか」で読む指標が変わる、というのがこの回の核心です。"""),
+- 「何を重視するか」で読む指標が変わる、というのが今回いちばん覚えておいてほしい点です。"""),
                 markdown("""## TRY：判定の「閾値」を動かしてみる
 
 0.5は絶対ではありません。閾値を下げると「活性」と判定する数が増え、**recallは上がるがprecisionは下がる**、
@@ -2493,7 +2526,8 @@ Copilotには、曖昧な項目を勝手に埋めさせず「確認すべき質�
             markdown("""### 出力の読み方
 
 - 折れ線が**対角線（点線）に近い**ほど較正が良好。対角線から膨らんでいれば、その確率帯で自信過剰／過小です。
-- Brierが較正後に下がっていれば改善成功。ただし小さいデータでは較正が不安定なこともあるので、図と数字の両方で判断します。"""),
+- Brierが較正後に下がっていれば改善成功。ただし小さいデータでは較正が不安定なこともあるので、図と数字の両方で判断します。
+- なお`base_clf`は「未較正」の比較用に学習しています。`CalibratedClassifierCV`は`cv=5`を指定しているため内部でモデルを学習し直します（`base_clf`の学習結果そのものは較正には使いません）。"""),
             markdown("""### コスト行列で閾値を決める（較正済み確率で）
 
 第5回と同じ考え方を、較正した確率に適用します。見逃し(FN)が空振り(FP)の8倍高いとして、期待コストが
@@ -2671,7 +2705,11 @@ precisionが下がります。**要件→閾値**の順で決めると、恣意�
 `classification_report`は、クラスごとにprecision・recall・F1と件数(support)を並べた総合成績表です。
 
 - **活性クラスの行**を重点的に見ます（少数派で難しいため）。第8回で学んだとおり、accuracyより各クラスのrecall/precisionが実態を映します。
-- 大事なのは点数そのものより、**文字列カテゴリを含む表をエラーなく1つのモデルへ通せた**こと。手作業のOne-Hotより安全で短いです。"""),
+- 大事なのは点数そのものより、**文字列カテゴリを含む表をエラーなく1つのモデルへ通せた**こと。手作業のOne-Hotより安全で短いです。
+
+補足：ここでは`scaffold_group`（化合物系列）もカテゴリ列の例として入れていますが、第6回のとおり本来は
+**系列を跨がない分割（GroupKFold）とセットで扱うべき列**です。この回はPipelineの組み方の説明が目的なので
+乱数分割のまま使っていますが、実データで系列をカテゴリ特徴量にするときは、この点に注意してください。"""),
                 markdown("""## 未知カテゴリが来ても止まらない
 
 本番では、学習時に無かった溶媒名が来ることがあります。`OneHotEncoder(handle_unknown="ignore")`の
@@ -2684,7 +2722,7 @@ precisionが下がります。**要件→閾値**の順で決めると、恣意�
                 markdown("""### 出力の読み方
 
 エラーで止まらず予測が返れば成功です。`handle_unknown="ignore"`が無いと、未知カテゴリで例外が出て
-本番が止まります。**「本番で起きうる入力」を想定して前処理を設計する**、という実務感覚が要点です。"""),
+本番が止まります。ここで身につけてほしいのは、**「本番で起きうる入力」を想定して前処理を設計する**という実務感覚です。"""),
                 markdown("""## CORE深掘り：変換後は列が増える。その姿を見る
 
 One-Hotはカテゴリごとに0/1の列を作るので、**列数が増えます**。`get_feature_names_out`で変換後の列名を、
@@ -2928,7 +2966,8 @@ Dummy / Logistic / Tree / Random Forest / Gradient Boosting を1人ずつ担当�
             markdown("""### 出力の読み方
 
 - **p値が0.05より大きい**なら、上位2モデルの差は「偶然の範囲」かもしれず、**わざわざ複雑な方を選ぶ理由は弱い**。
-- p値が小さくても、差の**大きさ**（実務的な意味があるか）は別問題。「統計的に有意」と「実務的に重要」は違う、という感覚を持ちます。"""),
+- p値が小さくても、差の**大きさ**（実務的な意味があるか）は別問題。「統計的に有意」と「実務的に重要」は違う、という感覚を持ちます。
+- 補足：反復交差検証のスコアは同じデータを使い回すため完全には独立でなく、素朴な検定のp値は**楽観的（有意に出やすい）**になりがちです。ここでは大まかな目安として読み、断定の根拠には使いません。"""),
             markdown("""### 投票・スタッキングで束ねる
 
 間違え方の違うモデルを組み合わせると、単体より安定することがあります。**Voting**は予測確率の平均、
@@ -2967,7 +3006,7 @@ XGBoostが入っていれば試します（`uv sync --extra advanced`）。無�
             markdown("""### 出力の読み方
 
 XGBoostのF1が、既に見たGradient Boostingと**近い値**になるはずです。「専用ライブラリ＝必ず勝つ」では
-ありません。ライブラリの新しさより、**フェアな比較の枠組み**の方がずっと大事、という締めくくりです。"""),
+ありません。ライブラリの新しさより、**フェアな比較の枠組み**の方がずっと大事だと、あらためて分かります。"""),
         ],
         [
             markdown("""## APPENDIX（任意・追加演習）
@@ -3095,16 +3134,22 @@ F1はある本数で頭打ちになり、その先は時間だけ延びるはず
 特徴量が増えると、効かない列がノイズになることも。**相互情報量（第4回）**で目的変数との関連が強い順に
 並べ、上位k個を選びます。相関と違い、山型のような非線形の関連も拾えます。"""),
                 code("""
+                    from functools import partial
                     from sklearn.feature_selection import SelectKBest, mutual_info_regression
 
+                    # random_stateを固定しないとMIの推定値は実行ごとに変わる（第4回と同じ作法）
+                    mi_score = partial(mutual_info_regression, random_state=42)
                     sel_data = engineered[added].fillna(engineered[added].median())
-                    selector = SelectKBest(mutual_info_regression, k=4).fit(sel_data, engineered["yield_pct"])
+                    selector = SelectKBest(mi_score, k=4).fit(sel_data, engineered["yield_pct"])
                     pd.DataFrame({"特徴量": added, "MIスコア": selector.scores_, "選択": selector.get_support()}).sort_values("MIスコア", ascending=False).round(3)
                 """),
-                markdown("""### 出力の読み方
+                markdown("""### 出力の読み方（結果は素直に受け止める）
 
-MIスコアの高い順に並び、上位4つに「選択=True」が付きます。自作した`temperature_distance`が上位に来て
-いれば、狙いどおり効く特徴量を作れたということ。**化学の直感（山型）と数字が一致する**瞬間です。"""),
+MIスコアの高い順に並び、上位4つに「選択=True」が付きます。ここで大事なのは、**自作の`temperature_distance`が
+必ず上位に来るとは限らない**ことです。実際、このデータの単変量MIでは上位に来ないことがあります。相互情報量は
+**1列ずつ単独で**目的変数との関連を測るため、「他の列と組み合わせて効く」種類の特徴量を低く見積もることがあります。
+思い込みで良し悪しを決めず、数字を見る。そして次のDEEP DIVE/APPENDIXで、**別の見方（並べ替え重要度）だと結論が
+変わる**ことを実際に確かめます。`random_state`を固定しているのは、固定しないとMIの推定値が毎回変わるためです。"""),
                 markdown("""## CHALLENGE：RDKitでSMILESから記述子を計算する
 
 分子量やLogPは、本来は分子構造（SMILES）から計算できます。RDKitが入っていれば、エタノールの
@@ -3166,22 +3211,31 @@ RDKitが動けば、SMILES（`CCO`＝エタノール）から分子量やLogPが
             markdown("""### RFECV：交差検証つきで特徴量を絞り込む
 
 `RFECV`は、重要度の低い特徴量を1つずつ削りながら交差検証し、**性能が最も良くなる特徴量の組**を
-自動で選びます。人手の取捨選択より客観的です。"""),
+自動で選びます。人手の取捨選択より客観的です。ここでは**係数の大きさで重要度を測る線形モデル(Ridge)**で
+回します（後述のとおり、木モデルはノイズに強すぎてRFECVが列を削らないことが多いため）。尺度をそろえてから
+かけます。"""),
             code("""
+                import numpy as np
                 from sklearn.feature_selection import RFECV
-                from sklearn.ensemble import RandomForestRegressor
+                from sklearn.linear_model import Ridge
+                from sklearn.preprocessing import StandardScaler
 
-                rfe_data = engineered[added].fillna(engineered[added].median())
-                rfecv = RFECV(RandomForestRegressor(n_estimators=100, random_state=42), cv=5, scoring="neg_mean_absolute_error", min_features_to_select=2)
-                rfecv.fit(rfe_data, engineered["yield_pct"])
-                print("選ばれた特徴量数:", rfecv.n_features_)
-                pd.DataFrame({"特徴量": added, "残す": rfecv.support_, "順位": rfecv.ranking_}).sort_values("順位")
+                # わざと「無意味な列」を混ぜて、RFECVがそれを削れるかを確かめる
+                rng = np.random.default_rng(0)
+                rfe_data = engineered[added].fillna(engineered[added].median()).copy()
+                rfe_data["noise"] = rng.normal(size=len(rfe_data))     # 目的変数と無関係な乱数列
+                rfe_data["logp_copy"] = rfe_data["logp"]                # 既存列の複製（冗長）
+                scaled = pd.DataFrame(StandardScaler().fit_transform(rfe_data), columns=rfe_data.columns, index=rfe_data.index)
+                rfecv = RFECV(Ridge(alpha=1.0), cv=5, scoring="neg_mean_absolute_error", min_features_to_select=2)
+                rfecv.fit(scaled, engineered["yield_pct"])
+                print("元の列数:", scaled.shape[1], "→ 選ばれた列数:", rfecv.n_features_)
+                pd.DataFrame({"特徴量": rfe_data.columns, "残す": rfecv.support_, "順位": rfecv.ranking_}).sort_values("順位")
             """),
             markdown("""### 出力の読み方
 
-`残す=True`が採用された特徴量、`順位=1`が最重要グループです。**残った特徴量を化学的に解釈**して
-みましょう——自作の`temperature_distance`が残っていれば、知識を式にした狙いが的中したということ。
-選択も交差検証の内側で行うことで、選びすぎ（過学習）を避けています。"""),
+- `残す=True`が採用列、`順位=1`が最重要グループ。**わざと混ぜた`noise`（乱数）と`logp_copy`（複製）が削られていれば**、RFECVが「役に立たない列を見抜いて外す」働きをしていると確認できます。
+- 木モデル(RandomForest)ではなく線形モデル(Ridge)を使ったのは、**木モデルはノイズ列があっても性能が落ちにくく、RFECVが何も削らないことが多い**ため。**推定器を変えると選択結果も変わる**——特徴量選択も「どの手法で測るか」に依存する、という点も併せて押さえます。
+- 選択も交差検証の内側で行うことで、選びすぎ（過学習）を避けています。"""),
         ],
         [
             markdown("""## APPENDIX（任意・追加演習）
@@ -3232,11 +3286,19 @@ RDKitが動けば、SMILES（`CCO`＝エタノール）から分子量やLogPが
                 perm = permutation_importance(rf, Xva, yva, scoring="neg_mean_absolute_error", n_repeats=15, random_state=42)
                 pd.DataFrame({"特徴量": added, "重要度": perm.importances_mean}).sort_values("重要度", ascending=False).round(3)
             """),
-            markdown("""### 出力の読み方
+            markdown("""### 出力の読み方：3つの見方が食い違うのは正常
 
-重要度の高い順に並びます。自作の`temperature_distance`や`concentration_per_hour`が上位なら、
-仮説を式にした狙いが的中。低ければ、その仮説はこのデータ・モデルでは効かなかったという学びです。
-**「作る→交差検証で効果確認→重要度で解釈」**の一巡が、特徴量設計の基本サイクルです。"""),
+ここでは`temperature_distance`が**上位に来ることがあります**。ところが同じ回のCOREでは、相互情報量(MI)で
+同じ列が**下位**、アブレーションでは追加しても**MAEがほとんど改善しない**——3つの見方で結論が食い違います。
+矛盾ではなく、**それぞれ別の問いに答えているから**です。
+
+- **アブレーション**：その列を入れるか抜くかで最終性能がどう動くか。他の列で代用が効くと、抜いても悪化せず「効果なし」に見える。
+- **相互情報量**：その列を単独で見たときの関連の強さ。組み合わせて効く効果は測れない。
+- **並べ替え重要度**：学習済みモデルが実際にその列に依存しているか。`temperature_distance`は`temperature_c`から作った相関の強い列なので、モデルがどちらを使うかで重要度が振れやすい。
+
+教訓は2つ。**(1) 1つの指標だけで特徴量の良し悪しを断じない。(2) 元の列と強く相関する派生列（今回の距離特徴量）は、
+重要度が不安定になりやすい。** 「作る→交差検証で効果を確かめる→複数の見方で解釈する」という一巡こそが、
+思い込みを避ける特徴量設計です。"""),
         ],
     )
 
@@ -3427,7 +3489,7 @@ Copilotには次の実験案を出してもらってもよいですが、**優�
             markdown("""### 出力の読み方
 
 `workspace/experiment_log.csv`に保存され、読み直しても同じ内容。**記録を残す文化**が、思いつきの改善を
-再現可能な知見へ変えます。良い変更も悪い変更も、まずログに残すことが第12回の核心です。"""),
+再現可能な知見へ変えます。良い変更も悪い変更も、まずログに残すことを、この回でいちばんの習慣にしてください。"""),
         ],
     )
 
@@ -3482,7 +3544,9 @@ Kaggle Titanicを使う場合も、最初にこの4点（目的・指標・train
                     from sklearn.metrics import f1_score
 
                     target = "active"
-                    drop_columns = ["sample_id", "experiment_date", "smiles", target]
+                    # batch_id（実験バッチの通し番号）とexperiment_dateは、活性とは無関係な「ID的な列」。
+                    # 特徴量に入れるとノイズになり、One-Hotで列だけ増えるので外す（第5回の予測時点の考え方）。
+                    drop_columns = ["sample_id", "experiment_date", "batch_id", "smiles", target]
                     features = [column for column in train.columns if column not in drop_columns]
                     numeric = train[features].select_dtypes(include="number").columns.tolist()
                     categorical = [column for column in features if column not in numeric]
@@ -3495,11 +3559,15 @@ Kaggle Titanicを使う場合も、最初にこの4点（目的・指標・train
                     model.fit(X_train, y_train)
                     print("ローカル検証F1:", round(f1_score(y_valid, model.predict(X_valid)), 3))
                 """),
-                markdown("""### 出力の読み方
+                markdown("""### 出力の読み方と、`scaffold_group`の注意
 
 このローカル検証F1が、あなたの**最初のものさし**です。以降の改善は、必ずこの値と比べます。
 「提出して順位が上がったか」だけでなく、**手元の検証がどう動いたか**を先に見る習慣が、コンペで
-崩れないコツです（次のDEEP DIVEのCV-LBの話につながります）。"""),
+崩れないコツです（次のDEEP DIVEのCV-LBの話につながります）。
+
+補足：ここでは`scaffold_group`（化合物系列）をカテゴリ特徴量として使っていますが、第6回のとおり本来は
+**系列を跨がない分割（GroupKFold）とセットで扱うべき列**です。乱数分割のまま使うと評価が楽観的に
+なり得ます。余力があれば、この列を外す・またはGroup分割にすると手元スコアがどう変わるか試してください。"""),
                 markdown("""## TRY：提出CSVを作り、機械的に検査する
 
 提出でいちばん多い失敗は、モデルの精度ではなく**フォーマットのミス**（列名・行数・余計なindex列）。
@@ -3680,7 +3748,8 @@ Kaggle Titanicを使う場合も、最初にこの4点（目的・指標・train
                     for frame in [improved_train, improved_test]:
                         frame["temperature_distance"] = (frame["temperature_c"] - 78).abs()
                     target = "active"
-                    ignored = ["sample_id", "experiment_date", "smiles", target]
+                    # batch_id・experiment_dateは活性と無関係なID的な列なので特徴量から外す（第13回と同じ方針）
+                    ignored = ["sample_id", "experiment_date", "batch_id", "smiles", target]
                     features = [c for c in improved_train.columns if c not in ignored]
                     numeric = improved_train[features].select_dtypes(include="number").columns.tolist()
                     categorical = [c for c in features if c not in numeric]
@@ -3794,7 +3863,7 @@ AUCが0.5付近なら、train/testは似ていて手元CVは信頼できます�
 
 5シード平均の模擬LB F1が、単一シードのときより**わずかに高く・安定**していれば成功。派手さは
 ありませんが、こうした地味で確実な積み上げが、コンペでも実務でも効きます。「1回の高スコア」より
-「**再現できる改善**」を選ぶ——この教材全体の締めくくりの姿勢です。"""),
+「**再現できる改善**」を選ぶ——これが今日いちばん持ち帰ってほしい姿勢です。"""),
         ],
         [
             markdown("""## APPENDIX（任意・追加演習）
@@ -4021,23 +4090,38 @@ Copilotへの良かった聞き方 / 自社テーマへ持ち帰りたい考え�
 
 `model_card.md`は人が読む説明書、`model_meta.json`は機械が読む来歴（使った特徴量・学習件数・モデル種別）。
 モデルと一緒にこの2つを残すと、**半年後の自分や引き継ぎ先が再現・判断できます**。"""),
-            markdown("""### ドリフトを模擬する：入力がずれると性能は落ちる
+            markdown("""### ドリフトを模擬する：入力がずれたら「監視」で気づけるか
 
-運用後、測定装置のずれなどで入力分布が変わる（ドリフト）ことがあります。テストの温度を系統的に
-+20℃ずらして、性能がどれだけ落ちるかを見ます。監視の必要性が体感できます。"""),
+運用後、測定装置のずれなどで入力分布が変わる（ドリフト）ことがあります。テストの温度を+20℃ずらし、
+**正解ラベルが無くても異常に気づけるか**を確かめます。運用中は正解（活性の実測）がすぐには手に入らない
+ため、F1のような指標は即座には測れません。だからこそ、正解なしで検知できる監視が重要になります。"""),
             code("""
+                import numpy as np
+                from sklearn.model_selection import cross_val_score
+                from sklearn.ensemble import RandomForestClassifier
                 from sklearn.metrics import f1_score
 
                 drift = X_te.copy()
                 drift["temperature_c"] = drift["temperature_c"] + 20
-                f1_before = f1_score(y_te, reloaded.predict(X_te))
-                f1_after = f1_score(y_te, reloaded.predict(drift))
-                print(f"ドリフト前 F1={f1_before:.3f} → 温度+20℃ドリフト後 F1={f1_after:.3f}")
+
+                # (1) 正解が無くても分かる変化：予測の陽性率
+                print(f"予測の陽性率: {reloaded.predict(X_te).mean():.3f} → {reloaded.predict(drift).mean():.3f}")
+
+                # (2) 監視：元データとドリフト後を見分けられるか（adversarial validation, 第6回）
+                cols = X_te.columns.tolist()
+                combined = pd.concat([X_te.assign(is_drift=0), drift.assign(is_drift=1)], ignore_index=True)
+                filled = combined[cols].fillna(combined[cols].median())
+                auc = cross_val_score(RandomForestClassifier(n_estimators=200, random_state=42), filled, combined["is_drift"], cv=5, scoring="roc_auc").mean()
+                print(f"監視AUC: {auc:.3f}（0.5=変化なし / 1.0に近い=明確な分布変化）")
+
+                # 参考：正解が手に入ればF1でも確認できる（運用中は正解が遅れて届く）
+                print(f"参考F1: {f1_score(y_te, reloaded.predict(X_te)):.3f} → {f1_score(y_te, reloaded.predict(drift)):.3f}")
             """),
             markdown("""### 出力の読み方
 
-ドリフト後にF1が下がれば、**入力の変化が性能に効く**証拠。だから運用では、入力分布や性能を定期監視し、
-下がったら再学習する仕組みが要ります（第6回のadversarial validationは、この監視にも使えます）。"""),
+- **監視AUCが0.5をはっきり上回る**なら、元データとドリフト後をモデルが見分けられる＝入力分布が変化した、という警報です。温度を+20℃ずらしたので、AUCは0.5より明確に高く出るはずです（1に近いほど変化が大きい）。
+- **予測の陽性率**の変化も、正解ラベル無しで「何かが変わった」と気づける手がかりです。
+- 一方、**参考F1は運用中すぐには測れません**（正解が遅れて届くため）。しかもこのデータ・特徴量では変化が小さく、性能指標だけに頼ると見逃しかねません。だからこそ、正解なしで異常を検知するadversarial validation（第6回）のような監視が実務で効きます。"""),
             markdown("""### 成績表をファイルに書き出す
 
 `classification_report`を表として保存します。発表資料や引き継ぎに添付できる、機械可読な成績表です。"""),
