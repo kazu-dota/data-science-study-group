@@ -46,6 +46,7 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 ## Notebookの目印
 
 - `CORE`：同期90分で扱う本線
+- `CORE深掘り`：CORE本線に続く、全員向けの少し踏み込んだ内容
 - `TRY`：全員で試す
 - `CHANGE`：値や列を少し変更する
 - `CHALLENGE`：興味のある人向けの自由研究
@@ -84,7 +85,7 @@ VS Codeを使う場合は、Notebookのカーネルとして `.venv\Scripts\pyth
 | 1 | 予測モデルを動かしてみる | [01-kickoff](lessons/01-kickoff/) | [開く](lessons/01-kickoff/lesson.ipynb) |
 | 2 | Pythonを読み、Copilotと少し変える | [02-python-with-copilot](lessons/02-python-with-copilot/) | [開く](lessons/02-python-with-copilot/lesson.ipynb) |
 | 3 | pandasで表データに触る | [03-pandas](lessons/03-pandas/) | [開く](lessons/03-pandas/lesson.ipynb) |
-| 4 | データ探偵：分布・欠損・外れ値 | [04-eda](lessons/04-eda/) | [開く](lessons/04-eda/lesson.ipynb) |
+| 4 | データ探偵—分布・欠損・外れ値 | [04-eda](lessons/04-eda/) | [開く](lessons/04-eda/lesson.ipynb) |
 | 5 | 何を、いつ、何のために予測するか | [05-problem-framing](lessons/05-problem-framing/) | [開く](lessons/05-problem-framing/lesson.ipynb) |
 | 6 | モデルは本当に当たっているか | [06-validation-leakage](lessons/06-validation-leakage/) | [開く](lessons/06-validation-leakage/lesson.ipynb) |
 | 7 | 数値を予測する：回帰 | [07-regression](lessons/07-regression/) | [開く](lessons/07-regression/lesson.ipynb) |
