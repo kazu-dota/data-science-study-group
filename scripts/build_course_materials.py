@@ -585,6 +585,8 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
     )
     return {
         "cells": [intro, setup, *cells],
+        "_title": title,
+        "_question": question,
         "metadata": {
             "kernelspec": {"display_name": "Python 3 (uv)", "language": "python", "name": "python3"},
             "language_info": {"name": "python", "version": "3.12"},
@@ -594,38 +596,174 @@ def notebook(title: str, question: str, cells: list[dict]) -> dict:
     }
 
 
+# 旧15回分の中身をいったん「モジュール」として登録し、あとで5回へ組み立てる。
+MODULES: dict = {}
+
+
 def write_notebook(folder: str, content: dict, deep_dive_cells: list[dict], appendix_cells: list[dict] | None = None) -> None:
-    meta = LESSON_META[folder]
-    objectives = "\n".join(f"- {item}" for item in meta["objectives"])
-    terms = "\n".join(f"- {item}" for item in meta["terms"])
-    pitfalls = "\n".join(f"- {item}" for item in meta["pitfalls"])
-    self_study = "\n".join(f"- {item}" for item in meta["self_study"])
-    check = "\n".join(f"{index}. {item}" for index, item in enumerate(meta["check"], start=1))
-    # 複数行の変数を差し込む前にテンプレートをdedentする（f-string内展開だとdedentが効かないため）。
-    guide = markdown(
+    """旧1回分を、統合前の素材として登録する（この時点ではファイルを書かない）。
+
+    content["cells"]は[intro, setup, *core]なので、intro/setupを外したcoreだけを保持する。
+    intro/setupとguide/wrap_upは、統合後の回で1つずつ作り直す。
+    """
+    MODULES[folder] = {
+        "title": content["_title"],
+        "question": content["_question"],
+        "core": content["cells"][2:],
+        "deep_dive": deep_dive_cells,
+        "appendix": appendix_cells or [],
+        "meta": LESSON_META[folder],
+    }
+
+
+def write_named_notebook(folder: str, filename: str, content: dict) -> None:
+    path = LESSONS_DIR / folder / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    content = {k: v for k, v in content.items() if not k.startswith("_")}
+    for index, cell in enumerate(content["cells"]):
+        cell["id"] = f"cell-{index:02d}"
+    path.write_text(json.dumps(content, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
+# ---- 旧15回を5回へ統合する定義とヘルパー ----
+
+COURSE_GROUPS = [
+    {
+        "folder": "01-python-and-data",
+        "title": "第1回：Pythonとデータに触れ、まず予測を動かす",
+        "overview": "環境を整え、Pythonとpandasの基礎を身につけ、完成済みの予測モデルを動かして「学習と予測」を体で覚えます。",
+        "members": ["01-kickoff", "02-python-with-copilot", "03-pandas"],
+    },
+    {
+        "folder": "02-look-frame-validate",
+        "title": "第2回：データを見て、問いを立て、評価を正しく設計する",
+        "overview": "データの怪しい点を見つけ（EDA）、何をいつ予測するかを決め（問題設定）、その評価がどこまで信じられるか（検証とリーク）を設計します。",
+        "members": ["04-eda", "05-problem-framing", "06-validation-leakage"],
+    },
+    {
+        "folder": "03-build-models",
+        "title": "第3回：回帰・分類・前処理Pipelineでモデルを作る",
+        "overview": "連続値の回帰、クラスの分類、そして数値列とカテゴリ列を安全に扱うPipelineで、評価できるモデルを組み立てます。",
+        "members": ["07-regression", "08-classification", "09-preprocessing-pipeline"],
+    },
+    {
+        "folder": "04-compare-and-improve",
+        "title": "第4回：モデルを比較し、特徴量と実験で改善する",
+        "overview": "複数モデルを公平に比べ、知識を特徴量に変え、1要素ずつ変える実験で「理由を説明できる改善」を回します。",
+        "members": ["10-model-comparison", "11-feature-engineering", "12-experiment-cycle"],
+    },
+    {
+        "folder": "05-ship-and-operate",
+        "title": "第5回：提出から運用・監視・再学習（MLOps）へ",
+        "overview": "模擬コンペで提出と改善を体験し、最後にモデルを「作って終わり」にせず、運用・監視・再学習のループ（MLOps）へつなげます。",
+        "members": ["13-kaggle-kickoff", "14-kaggle-improvement", "15-show-and-tell"],
+    },
+]
+
+
+def setup_cell() -> dict:
+    return code(
+        """
+        # 【準備セル】教材フォルダの場所を自動で見つけます。中身は今は理解しなくてOK、そのまま実行してください。
+        from pathlib import Path
+
+        def find_repo_root(start=Path.cwd()):
+            for candidate in [start, *start.parents]:
+                if (candidate / "pyproject.toml").exists():
+                    return candidate
+            raise FileNotFoundError("pyproject.tomlがある勉強会フォルダ内で実行してください")
+
+        ROOT = find_repo_root()
+        DATA = ROOT / "data"
+        print("教材フォルダ:", ROOT)
+        """
+    )
+
+
+def merged_intro(group: dict) -> dict:
+    subs = " ／ ".join(MODULES[m]["title"].split("：", 1)[-1] for m in group["members"])
+    return markdown(
+        dedent(
+            """
+            # {title}
+
+            この回は3つのパートで構成します：**{subs}**。
+
+            **セルの動かし方**：各セル（灰色の枠）を選んで `Shift + Enter`（またはセル左の▷ボタン）を押すと実行できます。
+            **上から順に**実行してください。前のセルを飛ばすと、後のセルでエラーになります。
+
+            **AIと一緒に進める**：分からないコードは、セル全体ではなく気になる数行をM365 CopilotなどのAIへ貼って
+            説明や修正を相談します（`ASK COPILOT`）。ただしAIの答えは鵜呑みにせず、必ず自分の出力で確かめます。
+
+            `TRY`は全員、`CHANGE`は値を1つ変える練習、`CHALLENGE`は余裕がある人向け、
+            `DEEP DIVE`・`APPENDIX`は発展です（飛ばしても本編は完結します）。
+            """
+        ).format(title=group["title"], subs=subs)
+    )
+
+
+def merged_guide(group: dict) -> dict:
+    objectives, terms = [], []
+    for member in group["members"]:
+        objectives += MODULES[member]["meta"]["objectives"]
+        terms += MODULES[member]["meta"]["terms"]
+    obj_md = "\n".join(f"- {item}" for item in objectives)
+    term_md = "\n".join(f"- {item}" for item in terms)
+    return markdown(
         dedent(
             """
             ## この回でできるようになること
 
+            {overview}
+
             {objectives}
 
-            ### 進み方
+            ### この回の進み方（大切）
 
-            `CORE`は同期90分で扱う本線、`DEEP DIVE`は時間があれば扱う深掘り、
-            `SELF-STUDY`は任意自習です。すべて終わらなくても次回へ進めます。
-            経験者は`CORE`を早めに終え、`DEEP DIVE`を5人で分担して読むと深まります。
+            この回は、旧カリキュラムの**3回分をまとめた長い回**です。**パート1→2→3**の順に、各パートの
+            `CORE`（本線）で手を動かします。1回の時間で全部を終える必要はありません。各パートの
+            `DEEP DIVE`／`APPENDIX`は、余裕のある人や自習で進めてください。日をまたいで少しずつでも大丈夫です。
 
             ### 先に押さえる言葉
 
             {terms}
 
-            > **実行前の30秒予想**：今日の問いに、今の言葉で仮の答えを書いてから始めます。
+            > **実行前の30秒予想**：各パートの問いに、今の言葉で仮の答えを書いてから始めます。
             """
-        ).format(objectives=objectives, terms=terms)
+        ).format(overview=group["overview"], objectives=obj_md, terms=term_md)
     )
-    wrap_up = markdown(
+
+
+def chapter_heading(index: int, member: str) -> dict:
+    mod = MODULES[member]
+    sub = mod["title"].split("：", 1)[-1]
+    return markdown(
         dedent(
             """
+            ---
+
+            # パート{index}：{sub}
+
+            **このパートの問い：{question}**
+            """
+        ).format(index=index, sub=sub, question=mod["question"])
+    )
+
+
+def merged_wrapup(group: dict) -> dict:
+    pitfalls, self_study, check = [], [], []
+    for member in group["members"]:
+        pitfalls += MODULES[member]["meta"]["pitfalls"]
+        self_study += MODULES[member]["meta"]["self_study"]
+        check += MODULES[member]["meta"]["check"]
+    pit_md = "\n".join(f"- {item}" for item in pitfalls)
+    ss_md = "\n".join(f"- {item}" for item in self_study)
+    ck_md = "\n".join(f"{index}. {item}" for index, item in enumerate(check, start=1))
+    return markdown(
+        dedent(
+            """
+            ---
+
             ## よくある誤り
 
             {pitfalls}
@@ -642,25 +780,122 @@ def write_notebook(folder: str, content: dict, deep_dive_cells: list[dict], appe
 
             答えに詰まった項目が、次に見返す場所です。暗記ではなくNotebookの該当セルを指せればOKです。
             """
-        ).format(pitfalls=pitfalls, self_study=self_study, check=check)
+        ).format(pitfalls=pit_md, self_study=ss_md, check=ck_md)
     )
-    content["cells"] = [
-        content["cells"][0],
-        content["cells"][1],
-        guide,
-        *content["cells"][2:],
-        *deep_dive_cells,
-        *(appendix_cells or []),
-        wrap_up,
+
+
+def mlops_cells() -> list[dict]:
+    """第5回の最後に足すMLOps（運用・監視・再学習）の章。前のパートで作った reloaded / feat / X_te を再利用する。"""
+    return [
+        markdown(
+            dedent(
+                """
+                ---
+
+                # パート4：MLOpsの考え方（運用・監視・再学習）
+
+                ここまでで「良いモデルを作る」ことはできました。実務では、そこからが本番です。モデルは
+                **作って終わりではなく、動かし続けるループ**の中で価値を出します。
+
+                > **学習 → 提供（サービング）→ 監視 → 再学習 → …**
+
+                このループを回す考え方や道具をまとめて**MLOps**と呼びます。実はこの教材では、その部品を
+                すでに各所で触っています——`Pipeline`（再現性）、`joblib`での**永続化**、実験ログ（追跡）、
+                ドリフト監視、適用領域。ここではそれらを「運用のループ」として一本につなぎます。
+                """
+            )
+        ),
+        markdown(
+            dedent(
+                """
+                ### 提供（サービング）：学習済みモデルを「関数」として使えるようにする
+
+                運用では、新しい試料が来るたびに学習し直しません。**保存済みモデルを読み込み、予測だけを返す
+                関数**を用意します。前のパートで保存した`reloaded`（前処理ごと保存したPipeline）をそのまま使います。
+                """
+            )
+        ),
+        code(
+            """
+            def predict_activity(samples):
+                "新しい試料(DataFrame)へ、活性の予測(0/1)と確率を返す推論関数。"
+                proba = reloaded.predict_proba(samples[feat])[:, 1]
+                return pd.DataFrame(
+                    {"活性予測": (proba >= 0.5).astype(int), "活性確率": proba.round(3)},
+                    index=samples.index,
+                )
+
+            display(predict_activity(X_te.head()))
+            """
+        ),
+        markdown(
+            dedent(
+                """
+                ### 出力の読み方
+
+                前処理ごと保存したPipelineなので、受け取った人は`predict_activity(新しいデータ)`を呼ぶだけで
+                予測できます。これが「サービング」の最小形です。Webサービスやバッチ処理も、裏でこの関数を
+                呼んでいるだけ、とイメージしてください。
+                """
+            )
+        ),
+        markdown(
+            dedent(
+                """
+                ### 監視と再学習：いつモデルを作り直すか
+
+                運用後は、次を定期的に見張ります（このパートまでで手を動かした道具が、そのまま使えます）。
+
+                - **入力のドリフト**：入力分布が学習時とずれていないか（第2回・このパートのadversarial validationの監視AUC）。正解が手に入らなくても検知できるのが利点。
+                - **予測の傾向**：予測の陽性率が急に変わっていないか。
+                - **性能**：正解ラベルが遅れて届いたら、F1などを計算し直す。
+                - **適用領域**：学習データから遠い入力が増えていないか（近傍距離）。
+
+                これらが目安を超えたら**再学習のトリガー**です。新しいデータを足して学習し直し、
+                **同じ検証（第2回）・同じ評価（このパート）で前のモデルと比較**してから入れ替えます。
+                作って終わりにせず、このループを回し続けることが、実データでモデルを役立て続けるコツです。
+                """
+            )
+        ),
+        markdown(
+            dedent(
+                """
+                ### 再現性チェックリスト（引き継ぎ・監査のために）
+
+                - データ生成・前処理・学習が**固定シードで再現**できる（この教材はすべてシード固定です）。
+                - モデルは**Pipelineごと保存**し、前処理を含めて復元できる。
+                - **モデルカード**（用途・限界・禁止条件）と**メタ情報**（使った特徴量・学習件数）を一緒に残す。
+                - 実験は**ログ**に残し、なぜその設定にしたかを後から説明できる。
+
+                ここまで来れば、「作って終わり」から「**運用でき、引き継げる**」モデルへの橋を渡せています。
+                """
+            )
+        ),
     ]
-    write_named_notebook(folder, "lesson.ipynb", content)
 
 
-def write_named_notebook(folder: str, filename: str, content: dict) -> None:
-    path = LESSONS_DIR / folder / filename
-    for index, cell in enumerate(content["cells"]):
-        cell["id"] = f"cell-{index:02d}"
-    path.write_text(json.dumps(content, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+def assemble_courses() -> None:
+    for group in COURSE_GROUPS:
+        cells = [merged_intro(group), setup_cell(), merged_guide(group)]
+        for index, member in enumerate(group["members"], start=1):
+            module = MODULES[member]
+            cells.append(chapter_heading(index, member))
+            cells.extend(module["core"])
+            cells.extend(module["deep_dive"])
+            cells.extend(module["appendix"])
+        if group["folder"] == "05-ship-and-operate":
+            cells.extend(mlops_cells())
+        cells.append(merged_wrapup(group))
+        content = {
+            "cells": cells,
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3 (uv)", "language": "python", "name": "python3"},
+                "language_info": {"name": "python", "version": "3.12"},
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        write_named_notebook(group["folder"], "lesson.ipynb", content)
 
 
 def make_dataset() -> pd.DataFrame:
@@ -4141,7 +4376,7 @@ Copilotへの良かった聞き方 / 自社テーマへ持ち帰りたい考え�
     )
 
     # ---- 任意：Kaggle Titanic ----
-    write_named_notebook("13-kaggle-kickoff", "titanic_optional.ipynb", notebook(
+    write_named_notebook("05-ship-and-operate", "titanic_optional.ipynb", notebook(
         "任意実践：Kaggle Titanicへ提出する",
         "模擬コンペで覚えた手順を、実際のKaggle過去コンペで再現できるか。",
         [
@@ -4222,8 +4457,9 @@ Copilotへの良かった聞き方 / 自社テーマへ持ち帰りたい考え�
 def main() -> None:
     df = make_dataset()
     write_data(df)
-    build_notebooks()
-    print(f"generated: {len(df)} rows and 15 notebooks")
+    build_notebooks()        # 旧15回分をモジュールとして登録し、titanic_optionalも書き出す
+    assemble_courses()       # 登録済みモジュールを5回のlesson.ipynbへ統合して書き出す
+    print(f"generated: {len(df)} rows and {len(COURSE_GROUPS)} lesson notebooks")
 
 
 if __name__ == "__main__":

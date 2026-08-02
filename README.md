@@ -1,6 +1,6 @@
 # データサイエンス勉強会
 
-製薬企業の化学分野の研究者を対象に、予測モデルを「作って終わり」ではなく、意図を持って評価・改善できるようになることを目指す、全15回の勉強会です。
+製薬企業の化学分野の研究者を対象に、予測モデルを「作って終わり」ではなく、意図を持って評価・改善し、運用まで見据えられるようになることを目指す、全5回の勉強会です（各回は長め・自己完結で、1回で全部を終える必要はありません）。
 
 講義だけでなく、毎回Pythonコードを動かし、結果の違いや失敗を全体で共有します。自習は任意です。同期だけでも次へ進めるよう、Notebookには共通課題と発展課題を用意します。
 
@@ -10,7 +10,7 @@
 
 ## まず見る場所
 
-- [全15回の進め方](docs/course-plan.md)
+- [全5回の進め方](docs/course-plan.md)
 - [各回で使う既存教材候補](docs/resources.md)
 - [Windows環境の準備](docs/setup-windows.md)
 - [M365 Copilotと一緒にコードを書く](docs/copilot-guide.md)
@@ -82,27 +82,17 @@ VS Codeで`lesson.ipynb`のようなNotebookファイルを開くと、画面右
 - 手順や用語を正確に区別する場面では、日本語ラベル付きの図を使います
 - 図だけで結論を決めず、実際のデータとNotebookの結果で確かめます
 
-## 全15回
+## 全5回
 
-各回の「フォルダ」を押すと、その回の教材（`README.md`と`lesson.ipynb`）へ直接移動できます。
+各回は旧カリキュラムの3回分をまとめた長い回で、**パート1〜3**（第5回はMLOpsのパート4も）で構成されます。「フォルダ」を押すと、その回の教材（`README.md`と`lesson.ipynb`）へ直接移動できます。
 
-| 回 | テーマ | フォルダ | Notebook |
-|---:|---|---|---|
-| 1 | 予測モデルを動かしてみる | [01-kickoff](lessons/01-kickoff/) | [開く](lessons/01-kickoff/lesson.ipynb) |
-| 2 | Pythonを読み、Copilotと少し変える | [02-python-with-copilot](lessons/02-python-with-copilot/) | [開く](lessons/02-python-with-copilot/lesson.ipynb) |
-| 3 | pandasで表データに触る | [03-pandas](lessons/03-pandas/) | [開く](lessons/03-pandas/lesson.ipynb) |
-| 4 | データ探偵—分布・欠損・外れ値 | [04-eda](lessons/04-eda/) | [開く](lessons/04-eda/lesson.ipynb) |
-| 5 | 何を、いつ、何のために予測するか | [05-problem-framing](lessons/05-problem-framing/) | [開く](lessons/05-problem-framing/lesson.ipynb) |
-| 6 | モデルは本当に当たっているか | [06-validation-leakage](lessons/06-validation-leakage/) | [開く](lessons/06-validation-leakage/lesson.ipynb) |
-| 7 | 数値を予測する：回帰 | [07-regression](lessons/07-regression/) | [開く](lessons/07-regression/lesson.ipynb) |
-| 8 | クラスを予測する：分類 | [08-classification](lessons/08-classification/) | [開く](lessons/08-classification/lesson.ipynb) |
-| 9 | 前処理をPipelineにまとめる | [09-preprocessing-pipeline](lessons/09-preprocessing-pipeline/) | [開く](lessons/09-preprocessing-pipeline/lesson.ipynb) |
-| 10 | モデル対決：線形モデル・木・アンサンブル | [10-model-comparison](lessons/10-model-comparison/) | [開く](lessons/10-model-comparison/lesson.ipynb) |
-| 11 | 化学の知識を特徴量にする | [11-feature-engineering](lessons/11-feature-engineering/) | [開く](lessons/11-feature-engineering/lesson.ipynb) |
-| 12 | 改善実験を小さく回す | [12-experiment-cycle](lessons/12-experiment-cycle/) | [開く](lessons/12-experiment-cycle/lesson.ipynb) |
-| 13 | Kaggleに入って最初の提出を作る | [13-kaggle-kickoff](lessons/13-kaggle-kickoff/) | [開く](lessons/13-kaggle-kickoff/lesson.ipynb) |
-| 14 | Kaggle改善会 | [14-kaggle-improvement](lessons/14-kaggle-improvement/) | [開く](lessons/14-kaggle-improvement/lesson.ipynb) |
-| 15 | Show & Tellと自社データへの橋渡し | [15-show-and-tell](lessons/15-show-and-tell/) | [開く](lessons/15-show-and-tell/lesson.ipynb) |
+| 回 | テーマ | 含むパート | フォルダ | Notebook |
+|---:|---|---|---|---|
+| 1 | Pythonとデータに触れ、まず予測を動かす | 予測を動かす／Python／pandas | [01-python-and-data](lessons/01-python-and-data/) | [開く](lessons/01-python-and-data/lesson.ipynb) |
+| 2 | データを見て、問いを立て、評価を設計する | EDA／問題設定／検証・リーク | [02-look-frame-validate](lessons/02-look-frame-validate/) | [開く](lessons/02-look-frame-validate/lesson.ipynb) |
+| 3 | 回帰・分類・前処理Pipelineでモデルを作る | 回帰／分類／Pipeline | [03-build-models](lessons/03-build-models/) | [開く](lessons/03-build-models/lesson.ipynb) |
+| 4 | モデルを比較し、特徴量と実験で改善する | モデル比較／特徴量／実験サイクル | [04-compare-and-improve](lessons/04-compare-and-improve/) | [開く](lessons/04-compare-and-improve/lesson.ipynb) |
+| 5 | 提出から運用・監視・再学習（MLOps）へ | 模擬コンペ提出／改善会／Show&Tell／MLOps | [05-ship-and-operate](lessons/05-ship-and-operate/) | [開く](lessons/05-ship-and-operate/lesson.ipynb) |
 
 ## 公開リポジトリのルール
 
