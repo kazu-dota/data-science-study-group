@@ -7,25 +7,28 @@ SUMMARY = "学習に使っていないデータで性能を測り、分類と回
 
 CELLS = [
     external_study(4),
-    markdown("## 評価で確認すること\n\n学習データの成績ではなく、学習に使っていないデータの成績を見ます。数値1つだけでなく、どんな間違いがあるかも確認します。"),
+    markdown("## 学習の流れ\n\n1. 単純な基準と比べる\n2. 分類の混同行列・指標・しきい値を読む\n3. ランダム分割とグループ分割を比べる\n4. 回帰の指標と残差を読む\n5. 誤った行を確認して次の改善案を作る"),
     code(
         """
         import matplotlib.pyplot as plt
         import numpy as np
         import pandas as pd
+        from sklearn.dummy import DummyClassifier
         from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
         from sklearn.impute import SimpleImputer
         from sklearn.metrics import (
             ConfusionMatrixDisplay,
             accuracy_score,
+            average_precision_score,
             f1_score,
             mean_absolute_error,
             mean_squared_error,
             precision_score,
             r2_score,
             recall_score,
+            roc_auc_score,
         )
-        from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+        from sklearn.model_selection import GroupKFold, StratifiedKFold, cross_val_score, train_test_split
         from sklearn.pipeline import make_pipeline
 
         data = pd.read_csv(DATA / "compound_experiments.csv")
@@ -33,7 +36,7 @@ CELLS = [
         X = data[features]
         """
     ),
-    markdown("## 分類を評価する\n\naccuracyだけでは、活性試料の見逃しが分かりません。混同行列と3つの指標を並べます。"),
+    markdown("## 分類を評価する\n\n多数派だけを答える基準と比べます。accuracyだけでなく、混同行列と複数の指標を並べます。"),
     code(
         """
         X_train, X_valid, y_train, y_valid = train_test_split(
@@ -45,11 +48,15 @@ CELLS = [
         ).fit(X_train, y_train)
         probability = classifier.predict_proba(X_valid)[:, 1]
         prediction = (probability >= 0.5).astype(int)
+        baseline = DummyClassifier(strategy="most_frequent").fit(X_train, y_train)
 
+        print("多数派だけのaccuracy:", round(accuracy_score(y_valid, baseline.predict(X_valid)), 3))
         print("accuracy:", round(accuracy_score(y_valid, prediction), 3))
         print("precision:", round(precision_score(y_valid, prediction), 3))
         print("recall:", round(recall_score(y_valid, prediction), 3))
         print("F1:", round(f1_score(y_valid, prediction), 3))
+        print("ROC AUC:", round(roc_auc_score(y_valid, probability), 3))
+        print("Average Precision:", round(average_precision_score(y_valid, probability), 3))
         """
     ),
     code(
@@ -74,6 +81,16 @@ CELLS = [
         pd.DataFrame(rows).round(3)
         """
     ),
+    markdown("## 誤った行を見る\n\n指標は誤りを要約した数値です。どの行を間違えたか確認し、共通点を探します。"),
+    code(
+        """
+        error_table = data.loc[X_valid.index, ["sample_id", "scaffold_group", "solvent"]].copy()
+        error_table["正解"] = y_valid
+        error_table["予測確率"] = probability
+        error_table["予測"] = prediction
+        error_table.loc[error_table["正解"] != error_table["予測"]].sort_values("予測確率")
+        """
+    ),
     markdown("## 交差検証で分割の偶然を減らす\n\n5通りの分割で評価し、平均とばらつきを確認します。"),
     code(
         """
@@ -81,6 +98,17 @@ CELLS = [
         scores = cross_val_score(classifier, X, data["active"], cv=cv, scoring="f1")
         print("各分割のF1:", scores.round(3))
         print(f"平均={scores.mean():.3f}, 標準偏差={scores.std():.3f}")
+        """
+    ),
+    markdown("## グループをまたいで評価する\n\n同じ化合物系列が学習側と検証側に入ると簡単すぎる場合があります。系列ごと分けた結果と比べます。"),
+    code(
+        """
+        group_cv = GroupKFold(5)
+        group_scores = cross_val_score(
+            classifier, X, data["active"], groups=data["scaffold_group"], cv=group_cv, scoring="f1"
+        )
+        print(f"層化5分割: {scores.mean():.3f} ± {scores.std():.3f}")
+        print(f"系列別5分割: {group_scores.mean():.3f} ± {group_scores.std():.3f}")
         """
     ),
     markdown("## 回帰を評価する\n\nMAEは平均の外れ幅、RMSEは大きな外れをより重く扱い、R²は平均予測からの改善度を示します。"),
@@ -109,6 +137,6 @@ CELLS = [
         plt.ylabel("残差（実測 - 予測）")
         """
     ),
-    markdown("## 演習\n\n見逃しを減らしたい場合のしきい値を1つ選び、そのときのprecisionとrecallを記録してください。"),
-    markdown("## 振り返り\n\n1. 学習に使っていないデータで評価する理由は何か\n2. precisionとrecallのどちらを重視するかは何で決まるか\n3. MAEとRMSEは大きな誤差をどう扱うか"),
+    markdown("## 演習\n\n見逃しを減らすしきい値を1つ選び、precisionとrecallを記録します。次に、層化分割と系列別分割の差から、どちらが想定する利用場面に近いか説明してください。"),
+    markdown("## 到達確認\n\n1. 基準モデルより良いか確認できるか\n2. precision・recall・F1・ROC AUCを用途に応じて読めるか\n3. データの関係に合わせて分割方法を選べるか\n4. MAE・RMSE・R²と残差を組み合わせて読めるか\n5. 誤った行から次の仮説を作れるか"),
 ]
