@@ -143,3 +143,43 @@
 [XGBoost「Introduction to Boosted Trees」](https://xgboost.readthedocs.io/en/stable/tutorials/model.html)の
 `Elements of Supervised Learning`から`Decision Tree Ensembles`までを読みます。
 数式の導出は必須ではありません。損失とモデルの複雑さを同時に考える点を確認します。
+
+## 第4回：予測モデルの評価
+
+### 事前：比較の基準とデータ分割（約60分）
+
+資料：[scikit-learn MOOC「Evaluating model performance」](https://inria.github.io/scikit-learn-mooc/evaluation/evaluation_module_intro.html)
+
+1. ここから：`Comparing model performance with a simple baseline`
+2. `Exercise M7.01`まで行います。
+3. ここから：`Stratification`
+4. ここまで：`Non i.i.d. data`
+5. `Nested cross-validation`は第5回の復習へ回します。
+
+確認すること：ランダム分割、層化分割、グループ分割、時系列を意識した分割について、
+同じ個体・系列・未来の情報が検証側から学習側へ入らないかを確認します。
+
+### 事前：分類と回帰の指標（約60分）
+
+同じ資料の次の範囲を使います。
+
+- `Classification`から`Exercise M7.02`まで
+- `Regression`から`Exercise M7.03`まで
+
+確認すること：accuracy、precision、recall、F1、MAE、RMSE、R²について、
+値が良くなる向き、単位、大きな誤りへの反応、使う場面を表にします。
+
+### 復習：しきい値とクラス不均衡（約70分）
+
+[Google Machine Learning Crash Course「Classification」](https://developers.google.com/machine-learning/crash-course/classification)を、
+`Thresholds and the confusion matrix`から`ROC and AUC`まで進めます。
+各ページの`Check Your Understanding`にも回答します。
+
+追加演習：偽陰性を偽陽性の5倍重く扱うと仮定し、しきい値ごとの合計損失を計算します。
+F1が最大のしきい値と、損失が最小のしきい値が一致するか確認します。
+
+### 任意：統計とグラフを補う
+
+[総務省統計局「社会人のためのデータサイエンス入門」](https://www.stat.go.jp/dss/online01.html)の
+第2週`統計学の基礎`と第3週`データの見方と表し方`を受講します。
+外部サイトへの登録と開講期間の確認が必要なため、本編の必須にはしません。
