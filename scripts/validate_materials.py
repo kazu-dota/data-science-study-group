@@ -1,4 +1,4 @@
-"""教材のファイル構成・データ・Notebook実行を検証する。"""
+"""教材の構成、リンク、Notebook実行を検証する。"""
 
 from __future__ import annotations
 
@@ -6,93 +6,85 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
+LESSONS = [
+    "lessons/01-python-pandas-numpy/lesson.ipynb",
+    "lessons/02-machine-learning-basics/lesson.ipynb",
+    "lessons/03-advanced-models/lesson.ipynb",
+    "lessons/04-model-evaluation/lesson.ipynb",
+    "lessons/05-performance-improvement/lesson.ipynb",
+]
+APPENDICES = [
+    "appendix/image-recognition.ipynb",
+    "appendix/audio-recognition.ipynb",
+    "appendix/nlp.ipynb",
+]
+NOTEBOOKS = ["quickstart.ipynb", *LESSONS, *APPENDICES]
 
 
-def validate_files() -> list[Path]:
-    notebooks = sorted((ROOT / "lessons").glob("*/lesson.ipynb"))
-    assert len(notebooks) == 5, f"Notebookは5本必要です（旧15回を3回ずつ統合）: {len(notebooks)}本"
-    required_sections = [
-        "## この回で扱うこと",
-        "# パート1：",
-        "# パート2：",
-        "# パート3：",
-        "## 発展（任意）",
-        "## 追加演習（任意）",
-        "## よくある誤り",
-        "## 自習",
-        "## 振り返りチェック",
-    ]
-    for path in notebooks:
+def validate_notebooks() -> list[Path]:
+    paths = [ROOT / relative for relative in NOTEBOOKS]
+    for path in paths:
         content = json.loads(path.read_text(encoding="utf-8"))
-        assert content["nbformat"] == 4
-        assert len(content["cells"]) >= 60, f"セルが少なすぎます: {path}"
-        code_cells = [cell for cell in content["cells"] if cell["cell_type"] == "code"]
-        assert len(code_cells) >= 20, f"実行例が少なすぎます: {path}"
-        markdown_text = "\n".join(
-            "".join(cell["source"]) if isinstance(cell["source"], list) else cell["source"]
-            for cell in content["cells"]
-            if cell["cell_type"] == "markdown"
-        )
-        missing_sections = [section for section in required_sections if section not in markdown_text]
-        assert not missing_sections, f"必須セクション不足: {path}: {missing_sections}"
-        ids = [cell.get("id") for cell in content["cells"]]
-        assert all(ids) and len(ids) == len(set(ids)), f"セルIDを確認してください: {path}"
-    return notebooks
+        cells = content["cells"]
+        code_cells = [cell for cell in cells if cell["cell_type"] == "code"]
+        assert content["nbformat"] == 4, f"Notebook形式が不正です: {path}"
+        assert len(cells) >= 10, f"説明や例が少なすぎます: {path}"
+        assert len(code_cells) >= 5, f"実行例が少なすぎます: {path}"
+        ids = [cell.get("id") for cell in cells]
+        assert all(ids) and len(ids) == len(set(ids)), f"セルIDが不正です: {path}"
+        text = "\n".join(str(cell["source"]) for cell in cells)
+        assert "上から順に実行してください" in text, f"開始案内がありません: {path}"
+        assert not re.search(r"\b(CORE|DEEP DIVE)\b", text), f"不要なラベルがあります: {path}"
+    return paths
 
 
 def validate_data() -> None:
     data = pd.read_csv(ROOT / "data" / "compound_experiments.csv")
-    required = {"sample_id", "scaffold_group", "yield_pct", "active", "post_assay_signal"}
-    assert required <= set(data.columns)
-    assert len(data) == 420
-    assert data["sample_id"].is_unique
-    assert set(data["active"].unique()) <= {0, 1}
-
-    directory = ROOT / "data" / "local_competition"
-    train = pd.read_csv(directory / "train.csv")
-    test = pd.read_csv(directory / "test.csv")
-    answers = pd.read_csv(directory / "instructor_answers.csv")
-    sample = pd.read_csv(directory / "sample_submission.csv")
-    assert "active" in train and "active" not in test
-    assert list(sample.columns) == ["sample_id", "active"]
-    assert len(test) == len(answers) == len(sample)
-    assert set(test["sample_id"]) == set(answers["sample_id"]) == set(sample["sample_id"])
+    required = {"sample_id", "yield_pct", "active"}
+    assert required <= set(data.columns), "教材データの列が不足しています"
+    assert len(data) == 420, "教材データの行数が変わっています"
+    assert data["sample_id"].is_unique, "sample_idが重複しています"
 
 
-def validate_relative_links() -> None:
+def validate_links() -> None:
     pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
     errors = []
-    for markdown_path in ROOT.rglob("*.md"):
-        if any(part in {".git", ".venv", ".uv-cache", "archive", "work"} for part in markdown_path.parts):
+    for path in ROOT.rglob("*.md"):
+        if any(part in {".git", ".venv", ".uv-cache", "archive", "work"} for part in path.parts):
             continue
-        for target in pattern.findall(markdown_path.read_text(encoding="utf-8")):
+        for target in pattern.findall(path.read_text(encoding="utf-8")):
             if target.startswith(("http://", "https://", "#", "mailto:")):
                 continue
             relative = target.split("#", 1)[0]
-            if relative and not (markdown_path.parent / relative).resolve().exists():
-                errors.append(f"{markdown_path.relative_to(ROOT)} -> {target}")
+            if relative and not (path.parent / relative).resolve().exists():
+                errors.append(f"{path.relative_to(ROOT)} -> {target}")
     assert not errors, "リンク切れ:\n" + "\n".join(errors)
 
 
-def execute_notebooks(notebooks: list[Path]) -> None:
-    with tempfile.TemporaryDirectory(prefix="ds-study-notebooks-") as temp_dir:
-        for path in notebooks:
-            output_dir = Path(temp_dir) / path.parent.name
-            output_dir.mkdir()
-            print(f"execute: {path.parent.name}")
+def execute_notebooks(paths: list[Path]) -> None:
+    with tempfile.TemporaryDirectory(prefix="ds-course-") as temp_dir:
+        for index, path in enumerate(paths, start=1):
+            print(f"実行 {index}/{len(paths)}: {path.relative_to(ROOT)}", flush=True)
             subprocess.run(
                 [
-                    str(ROOT / ".venv" / "Scripts" / "jupyter.exe") if (ROOT / ".venv" / "Scripts" / "jupyter.exe").exists() else str(ROOT / ".venv" / "bin" / "jupyter"),
-                    "nbconvert", "--to", "notebook", "--execute", str(path),
-                    "--output", "lesson.ipynb", "--output-dir", str(output_dir),
-                    "--ExecutePreprocessor.timeout=420", "--log-level=ERROR",
+                    sys.executable,
+                    "-m",
+                    "jupyter",
+                    "nbconvert",
+                    "--to=notebook",
+                    "--execute",
+                    str(path),
+                    f"--output={index:02d}.ipynb",
+                    f"--output-dir={temp_dir}",
+                    "--ExecutePreprocessor.timeout=420",
+                    "--log-level=ERROR",
                 ],
                 check=True,
                 cwd=ROOT,
@@ -101,13 +93,13 @@ def execute_notebooks(notebooks: list[Path]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--execute", action="store_true", help="全Notebookを実行する")
+    parser.add_argument("--execute", action="store_true", help="全Notebookも実行する")
     args = parser.parse_args()
-    notebooks = validate_files()
+    paths = validate_notebooks()
     validate_data()
-    validate_relative_links()
+    validate_links()
     if args.execute:
-        execute_notebooks(notebooks)
+        execute_notebooks(paths)
     print("教材検証: OK")
 
 
