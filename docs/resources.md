@@ -84,7 +84,7 @@
 
 ## 第2回：scikit-learn、分類、回帰
 
-### 事前：予測問題を決める（約30分）
+### 事前：予測問題を決める（約40分）
 
 資料：[Google「Problem Framing」](https://developers.google.com/machine-learning/problem-framing/problem-framing)
 
@@ -105,18 +105,30 @@
 
 確認すること：特徴量`X`、目的変数`y`、`fit`、`predict`を、分類例と回帰例から探します。
 
-### 復習：予測Pipelineと前処理（約60分）
+### 事前：予測Pipelineと前処理（約70分）
 
 資料：[scikit-learn MOOC「The predictive modeling pipeline」](https://inria.github.io/scikit-learn-mooc/predictive_modeling_pipeline/predictive_modeling_module_intro.html)
 
 1. ここから：`First look at our dataset`
 2. ここまで：`Model evaluation using cross-validation`
-3. `Exercise M1.01`と`Exercise M1.02`を行い、解答は実行後に確認します。
+3. `Exercise M1.01`、`M1.02`、`M1.03`を行い、解答は実行後に確認します。
 4. 続けて`Encoding of categorical variables`から
    `Using numerical and categorical variables together`まで読みます。
+5. `Exercise M1.04`と`M1.05`を行い、最後に`Wrap-up quiz 1`へ回答します。
 
 確認すること：数値列、カテゴリ列、欠損値へ必要な前処理と、前処理をPipelineへ
 含める理由を表にします。
+
+### 復習：線形モデルの予測を読む（約40分）
+
+同じMOOCの`Linear models`を使います。
+
+- ここから：`Intuitions on linear models`
+- ここまで：`Linear models for classification`
+- `Exercise M4.01`を行い、解答は実行後に確認します。
+
+確認すること：線形回帰とロジスティック回帰について、入力、出力、係数、
+予測値または予測確率の関係を図にします。係数の大小を因果関係と解釈しません。
 
 ### 復習：過学習とデータリーク（約30分）
 
@@ -129,6 +141,9 @@
 
 追加演習：予測時点では分からない列を1つ混ぜてスコアを比較します。
 高いスコアが得られても使えない理由と、Pipelineで防げるリーク・防げないリークを書きます。
+
+修了条件：予測対象、予測時点、使える列、成功指標を定義し、数値列とカテゴリ列を
+1本のPipelineで処理して、回帰・分類を基準モデルと比較します。
 
 ## 第3回：決定木、Random Forest、GBDT
 
