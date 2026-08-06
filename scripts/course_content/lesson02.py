@@ -7,23 +7,36 @@ SUMMARY = "回帰と分類の違いを知り、fitとpredictで2種類の予測�
 
 CELLS = [
     external_study(2),
-    markdown("## 機械学習とは\n\n入力と答えの例から関係を学び、新しい入力の答えを予測する方法です。数値を予測する**回帰**と、種類を予測する**分類**を試します。"),
+    markdown("## 学習の流れ\n\n1. 予測する対象と時点を決める\n2. 数値列とカテゴリ列を前処理する\n3. 回帰と分類を同じ手順で学習する\n4. 単純な予測と比べる\n5. 未知の1件を予測する"),
     code(
         """
         import pandas as pd
+        from sklearn.compose import make_column_transformer
         from sklearn.dummy import DummyClassifier, DummyRegressor
         from sklearn.impute import SimpleImputer
         from sklearn.linear_model import LinearRegression, LogisticRegression
         from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import make_pipeline
-        from sklearn.preprocessing import StandardScaler
+        from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
         data = pd.read_csv(DATA / "compound_experiments.csv")
-        features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
+        numeric_features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
+        categorical_features = ["solvent", "catalyst", "scaffold_group"]
+        features = [*numeric_features, *categorical_features]
+
+        def build_preprocessor():
+            return make_column_transformer(
+                (make_pipeline(SimpleImputer(strategy="median"), StandardScaler()), numeric_features),
+                (make_pipeline(
+                    SimpleImputer(strategy="most_frequent"),
+                    OneHotEncoder(handle_unknown="ignore"),
+                ), categorical_features),
+            )
         """
     ),
-    markdown("## 共通する5つの手順\n\n1. 説明変数`X`と目的変数`y`を作る\n2. 学習用と検証用に分ける\n3. モデルを作る\n4. `fit`で学習する\n5. `predict`で予測する"),
+    markdown("## 予測問題と列の役割\n\n回帰では収率、分類では活性を予測します。`post_assay_signal`と`purity_pct`は測定後に分かるため、予測時点では使いません。IDも予測の手掛かりから外します。"),
+    markdown("## 共通する6つの手順\n\n1. 特徴量`X`と目的変数`y`を決める\n2. 学習用と検証用に分ける\n3. 欠損補完・標準化・カテゴリ変換をPipelineに入れる\n4. `fit`で学習する\n5. `predict`で予測する\n6. 未学習データで基準モデルと比べる"),
     markdown("## 1. 回帰：収率を予測する\n\n収率`yield_pct`は連続した数値なので回帰を使います。"),
     code(
         """
@@ -34,8 +47,7 @@ CELLS = [
         )
 
         regression_model = make_pipeline(
-            SimpleImputer(strategy="median"),
-            StandardScaler(),
+            build_preprocessor(),
             LinearRegression(),
         )
         regression_model.fit(X_train, y_train)
@@ -61,8 +73,7 @@ CELLS = [
         )
 
         classification_model = make_pipeline(
-            SimpleImputer(strategy="median"),
-            StandardScaler(),
+            build_preprocessor(),
             LogisticRegression(max_iter=1000),
         )
         classification_model.fit(X_train, y_train)
@@ -86,8 +97,9 @@ CELLS = [
         probability = classification_model.predict_proba(one_sample)[0, 1]
         print("実際の答え:", y_valid.iloc[0])
         print(f"活性の予測確率: {probability:.1%}")
+        print("学習時に使った列:", one_sample.columns.tolist())
         """
     ),
-    markdown("## 演習\n\n回帰の目的変数を別の数値列へ変える、または分類モデルの`C`を0.1と10に変えて結果を比べます。"),
-    markdown("## 振り返り\n\n1. 回帰と分類は何を予測するか\n2. `fit`と`predict`は何をするか\n3. 単純なモデルと比べる理由は何か"),
+    markdown("## 演習\n\nカテゴリ列を使う場合と数値列だけの場合のF1を比べます。次に、`post_assay_signal`を使うと高得点でも運用できない理由を、予測時点という言葉を使って説明してください。"),
+    markdown("## 到達確認\n\n1. 回帰と分類の目的変数を区別できるか\n2. 数値列とカテゴリ列に必要な前処理を説明できるか\n3. Pipelineが学習データだけで前処理を学ぶ理由を説明できるか\n4. 単純な予測との比較と、リーク列を除く判断ができるか"),
 ]
