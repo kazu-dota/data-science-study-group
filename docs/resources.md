@@ -54,3 +54,51 @@
 
 追加演習：`compound_experiments.csv`から数値列を1つ選び、ヒストグラムと
 カテゴリ別の平均を作ります。グラフから言える事実と、まだ言えないことを1つずつ書きます。
+
+## 第2回：scikit-learn、分類、回帰
+
+### 事前：予測問題を決める（約30分）
+
+資料：[Google「Problem Framing」](https://developers.google.com/machine-learning/problem-framing/problem-framing)
+
+- ここから：`Overview`
+- ここまで：`Framing an ML problem`の`Define success metrics`
+- 順番：`Overview` → `Understand the problem` → `Framing an ML problem`
+
+確認すること：自分の題材について「理想の結果」「モデルの出力」「成功の測り方」
+「予測する時点で使える列」を1行ずつ書きます。モデルの評価指標と、利用上の成功指標は分けます。
+
+### 事前：分類と回帰を動かす（約30分）
+
+資料：[東京大学「7-2. scikit-learnライブラリ」](https://utokyo-ipp.github.io/7/7-2.html)
+
+- ここから：`機械学習について`
+- ここまで：`教師あり学習・回帰の例`
+- `教師なし学習`の詳細と、その後のクラスタリング・次元削減は今回は読み飛ばします。
+
+確認すること：特徴量`X`、目的変数`y`、`fit`、`predict`を、分類例と回帰例から探します。
+
+### 復習：予測Pipelineと前処理（約60分）
+
+資料：[scikit-learn MOOC「The predictive modeling pipeline」](https://inria.github.io/scikit-learn-mooc/predictive_modeling_pipeline/predictive_modeling_module_intro.html)
+
+1. ここから：`First look at our dataset`
+2. ここまで：`Model evaluation using cross-validation`
+3. `Exercise M1.01`と`Exercise M1.02`を行い、解答は実行後に確認します。
+4. 続けて`Encoding of categorical variables`から
+   `Using numerical and categorical variables together`まで読みます。
+
+確認すること：数値列、カテゴリ列、欠損値へ必要な前処理と、前処理をPipelineへ
+含める理由を表にします。
+
+### 復習：過学習とデータリーク（約30分）
+
+1. [scikit-learn MOOC「Selecting the best model」](https://inria.github.io/scikit-learn-mooc/overfit/overfit_module_intro.html)
+   - ここから：`Overfitting and underfitting`
+   - ここまで：`Cross-validation framework`
+2. [scikit-learn「Common pitfalls」](https://scikit-learn.org/stable/common_pitfalls.html)
+   - ここから：`Inconsistent preprocessing`
+   - ここまで：`How to avoid data leakage`
+
+追加演習：予測時点では分からない列を1つ混ぜてスコアを比較します。
+高いスコアが得られても使えない理由と、Pipelineで防げるリーク・防げないリークを書きます。
