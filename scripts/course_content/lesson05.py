@@ -7,7 +7,7 @@ SUMMARY = "比較条件を固定し、特徴量、モデル設定、しきい値
 
 CELLS = [
     external_study(5),
-    markdown("## 改善のルール\n\n1. 比較条件を固定する\n2. 変更は1つにする\n3. 良化も悪化も記録する\n4. 最後に未使用データで確認する"),
+    markdown("## 学習の流れ\n\n1. 基準と最終確認用データを固定する\n2. 学習曲線から改善の方向を考える\n3. 特徴量・モデル設定・しきい値を順に試す\n4. 重要度と誤りを調べる\n5. 変更履歴を残し、最後に1回だけ確認する"),
     code(
         """
         import numpy as np
@@ -21,6 +21,7 @@ CELLS = [
             StratifiedKFold,
             cross_val_predict,
             cross_val_score,
+            learning_curve,
             train_test_split,
         )
         from sklearn.pipeline import make_pipeline
@@ -45,6 +46,21 @@ CELLS = [
             base_model, development[base_features], development["active"], cv=cv, scoring="f1"
         )
         print(f"基準F1: {base_scores.mean():.3f} ± {base_scores.std():.3f}")
+        """
+    ),
+    markdown("## 学習曲線で改善の方向を考える\n\nデータ量を増やしたときの学習側と検証側のF1を比べます。差が大きいか、両方低いかで次の一手が変わります。"),
+    code(
+        """
+        sizes, train_scores, valid_scores = learning_curve(
+            base_model, development[base_features], development["active"],
+            train_sizes=[0.25, 0.5, 0.75, 1.0], cv=cv, scoring="f1"
+        )
+        pd.DataFrame({
+            "学習件数": sizes,
+            "学習F1": train_scores.mean(axis=1),
+            "検証F1": valid_scores.mean(axis=1),
+            "検証F1標準偏差": valid_scores.std(axis=1),
+        }).round(3)
         """
     ),
     markdown("## 1. 知識から特徴量を作る\n\n温度78℃からの距離と、濃度×反応時間を追加します。元の列は残したまま効果を比べます。"),
@@ -79,6 +95,10 @@ CELLS = [
         search.fit(improved[improved_features], improved["active"])
         print("探索後F1:", round(search.best_score_, 3))
         print("設定:", search.best_params_)
+        search_results = pd.DataFrame(search.cv_results_)[
+            ["rank_test_score", "mean_test_score", "std_test_score", "params"]
+        ].sort_values("rank_test_score")
+        search_results.head(5)
         """
     ),
     markdown("## 3. しきい値を調整する\n\n各行が検証側になったときの確率を集めます。この予測をOOF予測と呼び、しきい値選びに使います。"),
@@ -123,6 +143,16 @@ CELLS = [
         print("最終確認のF1:", round(f1_score(final_data["active"], final_prediction), 3))
         """
     ),
-    markdown("## 演習\n\n特徴量、モデル設定、しきい値のうち1つだけ変更し、変更前後の平均F1と標準偏差を記録してください。"),
-    markdown("## 振り返り\n\n1. 同時に複数条件を変えない理由は何か\n2. 探索も交差検証の内側で行う理由は何か\n3. 並べ替え重要度が答える問いは何か"),
+    markdown("## 最終確認後に誤りを調べる\n\n性能を報告した後で誤りを確認し、次の実験候補を作ります。この分析結果で同じ最終確認データへ再調整はしません。"),
+    code(
+        """
+        final_errors = final_data[["sample_id", "scaffold_group", "solvent"]].copy()
+        final_errors["正解"] = final_data["active"]
+        final_errors["予測確率"] = final_probability
+        final_errors["予測"] = final_prediction.astype(int)
+        final_errors.loc[final_errors["正解"] != final_errors["予測"]].sort_values("予測確率")
+        """
+    ),
+    markdown("## 演習\n\n特徴量、モデル設定、しきい値のうち1つだけ変更し、変更内容、交差検証の平均F1・標準偏差、実行時間、判断を1行に記録してください。"),
+    markdown("## 到達確認\n\n1. 学習曲線から、データ追加とモデル変更のどちらを先に試すか考えられるか\n2. 探索結果の平均とばらつきを読めるか\n3. 特徴量、設定、しきい値を同時に変えず比較できるか\n4. 最終確認データを改善に使い回さない理由を説明できるか\n5. 重要度と誤り分析から次の実験候補を作れるか"),
 ]
