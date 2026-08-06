@@ -20,6 +20,13 @@ LESSONS = [
     "lessons/04-model-evaluation/lesson.ipynb",
     "lessons/05-performance-improvement/lesson.ipynb",
 ]
+LESSON_REQUIRED_TEXT = {
+    LESSONS[0]: ["列の型と分布", "欠損と外れ値候補"],
+    LESSONS[1]: ["予測問題と列の役割", "OneHotEncoder"],
+    LESSONS[2]: ["木の深さと過学習", "学習F1"],
+    LESSONS[3]: ["グループをまたいで評価", "誤った行を見る"],
+    LESSONS[4]: ["学習曲線で改善の方向", "最終確認後に誤りを調べる"],
+}
 APPENDICES = [
     "appendix/image-recognition.ipynb",
     "appendix/audio-recognition.ipynb",
@@ -44,6 +51,8 @@ def validate_notebooks() -> list[Path]:
         assert not re.search(r"\b(CORE|DEEP DIVE)\b", text), f"不要なラベルがあります: {path}"
         if path.relative_to(ROOT).as_posix() in LESSONS:
             assert "外部資料の指定範囲" in text, f"外部資料への案内がありません: {path}"
+            for required in LESSON_REQUIRED_TEXT[path.relative_to(ROOT).as_posix()]:
+                assert required in text, f"深掘り項目「{required}」がありません: {path}"
     return paths
 
 
