@@ -27,23 +27,29 @@ CELLS = [
         data = pd.read_csv(DATA / "compound_experiments.csv")
         base_features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
         cv = StratifiedKFold(5, shuffle=True, random_state=42)
+        development, final_test = train_test_split(
+            data, test_size=0.2, random_state=42, stratify=data["active"]
+        )
+        print("改善に使う件数:", len(development), "最終確認用:", len(final_test))
         """
     ),
-    markdown("## 基準となるモデル\n\n以降の変更は、すべて同じ5分割交差検証のF1で比べます。"),
+    markdown("## 基準となるモデル\n\n最終確認用データには触れず、改善用データを同じ5分割交差検証で比べます。"),
     code(
         """
         base_model = make_pipeline(
             SimpleImputer(strategy="median"),
             HistGradientBoostingClassifier(max_iter=150, random_state=42),
         )
-        base_scores = cross_val_score(base_model, data[base_features], data["active"], cv=cv, scoring="f1")
+        base_scores = cross_val_score(
+            base_model, development[base_features], development["active"], cv=cv, scoring="f1"
+        )
         print(f"基準F1: {base_scores.mean():.3f} ± {base_scores.std():.3f}")
         """
     ),
     markdown("## 1. 知識から特徴量を作る\n\n温度78℃からの距離と、濃度×反応時間を追加します。元の列は残したまま効果を比べます。"),
     code(
         """
-        improved = data.copy()
+        improved = development.copy()
         improved["temperature_distance"] = (improved["temperature_c"] - 78).abs()
         improved["concentration_time"] = improved["concentration_m"] * improved["reaction_time_h"]
         improved_features = [*base_features, "temperature_distance", "concentration_time"]
@@ -74,7 +80,7 @@ CELLS = [
         print("設定:", search.best_params_)
         """
     ),
-    markdown("## 3. しきい値を調整する\n\n交差検証の検証側だけを集めたOOF確率で、F1が最大になるしきい値を探します。"),
+    markdown("## 3. しきい値を調整する\n\n各行が検証側になったときの確率を集めます。この予測をOOF予測と呼び、しきい値選びに使います。"),
     code(
         """
         oof_probability = cross_val_predict(
@@ -87,12 +93,12 @@ CELLS = [
         print(f"最良しきい値={best_threshold:.2f}, OOF F1={max(threshold_scores):.3f}")
         """
     ),
-    markdown("## 4. 重要な列を確認する\n\n検証データで列を1つずつ並べ替え、F1がどれだけ下がるかを測ります。"),
+    markdown("## 4. 重要な列を確認する\n\n改善用データをもう一度分け、列を1つずつ並べ替えたときにF1がどれだけ下がるかを測ります。"),
     code(
         """
         X_train, X_valid, y_train, y_valid = train_test_split(
             improved[improved_features], improved["active"], test_size=0.25,
-            random_state=42, stratify=improved["active"]
+            random_state=7, stratify=improved["active"]
         )
         final_model = search.best_estimator_.fit(X_train, y_train)
         importance = permutation_importance(
@@ -101,6 +107,19 @@ CELLS = [
         pd.DataFrame({"特徴量": improved_features, "重要度": importance.importances_mean}).sort_values(
             "重要度", ascending=False
         ).round(3)
+        """
+    ),
+    markdown("## 5. 最後に1回だけ確認する\n\n選んだ特徴量・設定・しきい値を固定し、取り分けておいたデータでF1を確認します。"),
+    code(
+        """
+        final_data = final_test.copy()
+        final_data["temperature_distance"] = (final_data["temperature_c"] - 78).abs()
+        final_data["concentration_time"] = final_data["concentration_m"] * final_data["reaction_time_h"]
+
+        final_model = search.best_estimator_.fit(improved[improved_features], improved["active"])
+        final_probability = final_model.predict_proba(final_data[improved_features])[:, 1]
+        final_prediction = final_probability >= best_threshold
+        print("最終確認のF1:", round(f1_score(final_data["active"], final_prediction), 3))
         """
     ),
     markdown("## 演習\n\n特徴量、モデル設定、しきい値のうち1つだけ変更し、変更前後の平均F1と標準偏差を記録してください。"),
