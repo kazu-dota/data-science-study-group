@@ -54,7 +54,7 @@ VS Code上でNotebookを開く場合は、右上の「カーネルの選択」�
 | テーマ | 試すこと | Notebook |
 |---|---|---|
 | 画像認識 | 手書き数字を0〜9に分類する | [開く](appendix/image-recognition.ipynb) |
-| 音声認識 | 合成した音の高さを分類する | [開く](appendix/audio-recognition.ipynb) |
+| 音声認識の入口 | 合成した音の高さを分類する | [開く](appendix/audio-recognition.ipynb) |
 | 自然言語処理 | 日本語の短文をカテゴリ分けする | [開く](appendix/nlp.ipynb) |
 
 ## Notebookの進め方

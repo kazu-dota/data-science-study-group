@@ -2,11 +2,11 @@
 
 from course_content.builder import code, markdown
 
-TITLE = "Appendix：手元で動かす音声認識"
-SUMMARY = "合成した音の波形から周波数特徴を作り、低音・中音・高音を分類します。"
+TITLE = "Appendix：音声認識の入口となる音の分類"
+SUMMARY = "合成した音を低音・中音・高音に分けます。人の話し声を文字にする処理ではなく、音を数値にして見分ける最初の例です。"
 
 CELLS = [
-    markdown("## 音は時間ごとの振幅\n\n今回は録音の代わりに、NumPyで周波数の異なる音を作ります。"),
+    markdown("## 音は時間ごとの振幅\n\n録音や追加データを使わずに動かせるよう、NumPyで周波数の異なる音を作ります。"),
     code(
         """
         import matplotlib.pyplot as plt

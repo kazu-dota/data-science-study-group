@@ -3,7 +3,7 @@
 from course_content.builder import code, markdown
 
 TITLE = "まず動かす：5回分のコード全体像"
-SUMMARY = "化合物の実験条件から活性を予測します。細部は後で学ぶので、まず結果が出る楽しさを体験してください。"
+SUMMARY = "化合物の実験条件から活性を予測します。細かい説明は後回しにして、予測結果が出るところまで動かします。"
 
 CELLS = [
     markdown(
@@ -31,6 +31,8 @@ CELLS = [
 
         data = pd.read_csv(DATA / "compound_experiments.csv")
         features = ["temperature_c", "reaction_time_h", "concentration_m", "molecular_weight", "logp", "tpsa"]
+        numeric_table = np.asarray(data[features])
+        print("NumPy配列の形:", numeric_table.shape)
         data[features + ["active"]].head()
         """
     ),
@@ -41,7 +43,7 @@ CELLS = [
         X = data[features]
         y = data["active"]
 
-        # 2. 未知データで確かめるため、学習用と検証用に分ける
+        # 2. 学習に使っていないデータで確かめるため、学習用と検証用に分ける
         X_train, X_valid, y_train, y_valid = train_test_split(
             X, y, test_size=0.25, random_state=42, stratify=y
         )

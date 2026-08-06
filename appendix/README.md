@@ -6,7 +6,7 @@
 | テーマ | 使用するデータ | Notebook |
 |---|---|---|
 | 画像認識 | scikit-learn付属の手書き数字 | [開く](image-recognition.ipynb) |
-| 音声認識 | NumPyで作る3種類の音 | [開く](audio-recognition.ipynb) |
+| 音声認識の入口 | NumPyで作る3種類の音 | [開く](audio-recognition.ipynb) |
 | 自然言語処理 | Notebook内の日本語短文 | [開く](nlp.ipynb) |
 
 追加のダウンロード、外部API、GPUは不要です。
