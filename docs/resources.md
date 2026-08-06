@@ -102,3 +102,44 @@
 
 追加演習：予測時点では分からない列を1つ混ぜてスコアを比較します。
 高いスコアが得られても使えない理由と、Pipelineで防げるリーク・防げないリークを書きます。
+
+## 第3回：決定木、Random Forest、GBDT
+
+### 事前：1本の決定木を理解する（約45分）
+
+資料：[scikit-learn MOOC「Decision tree models」](https://inria.github.io/scikit-learn-mooc/trees/trees_module_intro.html)
+
+- ここから：`Intuitions on tree-based models`
+- ここまで：`Importance of decision tree hyperparameters on generalization`
+- 分類の`Exercise M5.01`を行います。回帰の`Exercise M5.02`は復習へ回します。
+
+確認すること：木の深さを増やしたとき、学習データと検証データの成績がどう変わるか書きます。
+
+### 事前：木を組み合わせる（約60分）
+
+資料：[scikit-learn MOOC「Ensemble of models」](https://inria.github.io/scikit-learn-mooc/ensemble/ensemble_module_intro.html)
+
+1. ここから：`Introductory example to ensemble models`
+2. `Bagging`を読み、`Random forests`と`Exercise M6.02`まで進みます。
+3. ここから：`Intuitions on ensemble models: boosting`
+4. ここまで：`Speeding-up gradient-boosting`
+5. AdaBoostの数式と`Exercise M6.03`の解答は復習へ回します。
+
+確認すること：Random ForestとGBDTについて、木を作る順番、前の木との関係、
+並列化のしやすさを比較します。
+
+### 復習：モデル選択の判断材料（約45分）
+
+同じMOOCの次の範囲を読みます。
+
+- `Decision tree for regression`から`Exercise M5.02`まで
+- `Hyperparameter tuning with ensemble methods`から`Exercise M6.04`まで
+
+追加演習：決定木、Random Forest、GBDTを、F1だけでなく学習時間、予測時間、
+設定項目の数、結果の説明しやすさでも比較します。
+
+### 任意：XGBoostの仕組み（約30分）
+
+[XGBoost「Introduction to Boosted Trees」](https://xgboost.readthedocs.io/en/stable/tutorials/model.html)の
+`Elements of Supervised Learning`から`Decision Tree Ensembles`までを読みます。
+数式の導出は必須ではありません。損失とモデルの複雑さを同時に考える点を確認します。
