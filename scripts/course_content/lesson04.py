@@ -1,11 +1,12 @@
 """第4回：予測モデルの評価。"""
 
-from course_content.builder import code, markdown
+from course_content.builder import code, external_study, markdown
 
 TITLE = "第4回：予測モデルを評価する"
 SUMMARY = "学習に使っていないデータで性能を測り、分類と回帰の指標を目的に合わせて読みます。"
 
 CELLS = [
+    external_study(4),
     markdown("## 評価で確認すること\n\n学習データの成績ではなく、学習に使っていないデータの成績を見ます。数値1つだけでなく、どんな間違いがあるかも確認します。"),
     code(
         """

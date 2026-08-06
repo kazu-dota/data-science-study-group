@@ -1,11 +1,12 @@
 """第3回：GBDTなどの高度な予測モデル。"""
 
-from course_content.builder import code, markdown
+from course_content.builder import code, external_study, markdown
 
 TITLE = "第3回：高度な予測モデル"
 SUMMARY = "決定木、Random Forest、GBDTを同じデータで動かし、予測の違いを比べます。"
 
 CELLS = [
+    external_study(3),
     markdown("## 木を組み合わせるモデル\n\n- **決定木**：条件分岐を1本作る\n- **Random Forest**：異なる決定木を並列に作り、多数決する\n- **GBDT**：前の木が間違えた部分を、次の木が順番に補う"),
     code(
         """

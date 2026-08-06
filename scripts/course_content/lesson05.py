@@ -1,11 +1,12 @@
 """第5回：予測性能を向上させる。"""
 
-from course_content.builder import code, markdown
+from course_content.builder import code, external_study, markdown
 
 TITLE = "第5回：性能を向上させるテクニック"
 SUMMARY = "比較条件を固定し、特徴量、モデル設定、しきい値を1つずつ改善します。"
 
 CELLS = [
+    external_study(5),
     markdown("## 改善のルール\n\n1. 比較条件を固定する\n2. 変更は1つにする\n3. 良化も悪化も記録する\n4. 最後に未使用データで確認する"),
     code(
         """

@@ -17,6 +17,17 @@ def code(text: str) -> CellSpec:
     return ("code", dedent(text).strip() + "\n")
 
 
+def external_study(lesson_number: int) -> CellSpec:
+    return markdown(
+        f"""
+        ## 外部資料と組み合わせる
+
+        このNotebookは第{lesson_number}回の最低限の実習です。
+        実習の前後に[外部資料の指定範囲](../../docs/resources.md)を読み、確認問題と追加演習にも取り組みます。
+        """
+    )
+
+
 SETUP = code(
     """
     from pathlib import Path

@@ -42,6 +42,8 @@ def validate_notebooks() -> list[Path]:
         text = "\n".join(str(cell["source"]) for cell in cells)
         assert "上から順に実行してください" in text, f"開始案内がありません: {path}"
         assert not re.search(r"\b(CORE|DEEP DIVE)\b", text), f"不要なラベルがあります: {path}"
+        if path.relative_to(ROOT).as_posix() in LESSONS:
+            assert "外部資料の指定範囲" in text, f"外部資料への案内がありません: {path}"
     return paths
 
 

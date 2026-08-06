@@ -1,11 +1,12 @@
 """第2回：scikit-learn、分類、回帰。"""
 
-from course_content.builder import code, markdown
+from course_content.builder import code, external_study, markdown
 
 TITLE = "第2回：scikit-learnと機械学習"
 SUMMARY = "回帰と分類の違いを知り、fitとpredictで2種類の予測モデルを動かします。"
 
 CELLS = [
+    external_study(2),
     markdown("## 機械学習とは\n\n入力と答えの例から関係を学び、新しい入力の答えを予測する方法です。数値を予測する**回帰**と、種類を予測する**分類**を試します。"),
     code(
         """

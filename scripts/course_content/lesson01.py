@@ -1,12 +1,13 @@
 """第1回：Python、pandas、NumPy。"""
 
-from course_content.builder import code, markdown
+from course_content.builder import code, external_study, markdown
 
 TITLE = "第1回：Pythonの基礎とpandas・NumPy"
 SUMMARY = "短いコードを動かしながら、表データを読み、選び、集計できるようになります。"
 
 CELLS = [
     markdown("## 今日できるようになること\n\n- 変数・リスト・繰り返し・関数を使う\n- NumPyでまとめて計算する\n- pandasでCSVを読み、必要な行や列を調べる"),
+    external_study(1),
     markdown("## 1. Pythonの変数とリスト\n\n`=`の右側の値に、左側の名前を付けます。"),
     code(
         """
