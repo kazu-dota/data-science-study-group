@@ -230,3 +230,31 @@ F1が最大のしきい値と、損失が最小のしきい値が一致するか
 
 追加演習：変更内容、乱数、交差検証、平均F1、標準偏差、実行時間を1行にした実験表を作ります。
 重要度が低い列を「原因ではない」と断定できない理由も書きます。
+
+## Appendix：表データ以外を手元で試す
+
+Appendixは全5回の終了後に、興味のあるものを1つ選びます。外部APIやGPUは使いません。
+
+### 画像認識
+
+[scikit-learn「load_digits」](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_digits.html)の
+`Parameters`から`Examples`までを読みます。`images`と`data`の形を比べ、8×8の画像が64個の数値へ変わることを確認してから、
+[画像認識Notebook](../appendix/image-recognition.ipynb)を実行します。
+
+確認すること：画像1枚、1行の特徴量、1個の正解ラベルがどのように対応しているか説明します。
+
+### 音声認識の入口
+
+[NumPy「Discrete Fourier Transform」](https://numpy.org/doc/stable/reference/routines.fft.html)の
+`Background information`から`Implementation details`までを読み、
+[音声認識Notebook](../appendix/audio-recognition.ipynb)を実行します。数式の導出は追わず、時間方向の波形を周波数ごとの強さへ変える目的をつかみます。
+
+確認すること：音の高さを変えたとき、最も強い周波数がどちらへ動くか予想してからコードを動かします。
+
+### 自然言語処理
+
+[scikit-learn「Text feature extraction」](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction)の
+`The Bag of Words representation`から`Tf–idf term weighting`までを読み、
+[自然言語処理Notebook](../appendix/nlp.ipynb)を実行します。
+
+確認すること：文章をそのままモデルへ渡せない理由と、単語の出現回数を数値にする利点・弱点を1つずつ書きます。
