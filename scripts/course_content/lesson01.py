@@ -99,7 +99,8 @@ CELLS = [
     code(
         """
         missing = data.isna().sum()
-        print("欠損数:\n", missing[missing > 0].sort_values(ascending=False))
+        print("欠損数:")
+        print(missing[missing > 0].sort_values(ascending=False))
         print("120℃超の件数:", (data["temperature_c"] > 120).sum())
         data.plot.scatter(x="temperature_c", y="yield_pct", alpha=0.6, title="温度と収率")
         """
