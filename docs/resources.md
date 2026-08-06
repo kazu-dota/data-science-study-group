@@ -268,6 +268,18 @@ Notebookで誤分類表と残差を並べ、次の順に確認します。
 
 ## 第5回：性能を向上させる
 
+### 事前：学習曲線から次の一手を決める（約40分）
+
+第3回でも使った[scikit-learn MOOC「Selecting the best model」](https://inria.github.io/scikit-learn-mooc/overfit/overfit_module_intro.html)を、
+改善方法を選ぶ視点で読み直します。
+
+- ここから：`Validation and learning curves`
+- ここまで：`Effect of the sample size in cross-validation`
+- `Exercise M2.01`は、学習データ量ごとの学習・検証スコアを記録して再実行します。
+
+確認すること：学習側と検証側の差が大きい場合、両方低い場合、データ量とともに検証性能が
+伸びている場合について、データ追加、特徴量、モデル複雑度のどれを先に試すか書きます。
+
 ### 事前：特徴量を見直す（約60分）
 
 資料：[Google Machine Learning Crash Course「Working with numerical data」](https://developers.google.com/machine-learning/crash-course/numerical-data)
@@ -312,6 +324,33 @@ Notebookで誤分類表と残差を並べ、次の順に確認します。
 
 追加演習：変更内容、乱数、交差検証、平均F1、標準偏差、実行時間を1行にした実験表を作ります。
 重要度が低い列を「原因ではない」と断定できない理由も書きます。
+
+### 復習：実験記録から判断する（約30分）
+
+次の列を持つ実験表を作ります。
+
+| 列 | 記録する内容 |
+|---|---|
+| 変更 | 基準から変えた1点 |
+| 仮説 | なぜ改善すると考えたか |
+| 検証 | 分割方法、指標、乱数 |
+| 結果 | 平均、標準偏差、実行時間 |
+| 判断 | 採用、保留、不採用と理由 |
+| 次 | 次に1つだけ試すこと |
+
+最良スコアだけでなく、悪化した試行も残します。同じ試行の重複と、都合の良い結果だけを選ぶことを防ぎます。
+
+### 発展・任意：学習済みモデルを扱う前の注意（約25分）
+
+[scikit-learn「Model persistence」](https://scikit-learn.org/stable/model_persistence.html)の
+`Summary of model persistence methods`から`Workflow Overview`までと、
+`Security & Maintainability Limitations`の冒頭を読みます。
+
+確認すること：モデルだけでなく、学習データの参照先、コード、依存パッケージのバージョン、
+検証スコアを残す理由と、信頼できないpickle系ファイルを読み込まない理由を書きます。
+
+修了条件：学習曲線から改善方針を立て、特徴量、設定、しきい値を順に比較し、
+重要度と誤りを確認します。最終確認用データは最後の1回だけ使い、実験表から採否を説明します。
 
 ## Appendix：表データ以外を手元で試す
 
