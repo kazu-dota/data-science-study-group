@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "第3回：高度な予測モデル"
 SUMMARY = "決定木、Random Forest、GBDTを同じデータで動かし、予測の違いを比べます。"
 

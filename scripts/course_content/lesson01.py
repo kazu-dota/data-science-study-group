@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "第1回：Pythonの基礎とpandas・NumPy"
 SUMMARY = "短いコードを動かしながら、表データを読み、選び、集計できるようになります。"
 

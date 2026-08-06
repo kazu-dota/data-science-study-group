@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "第5回：性能を向上させるテクニック"
 SUMMARY = "比較条件を固定し、特徴量、モデル設定、しきい値を1つずつ改善します。"
 

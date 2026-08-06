@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "まず動かす：5回分のコード全体像"
 SUMMARY = "化合物の実験条件から活性を予測します。細部は後で学ぶので、まず結果が出る楽しさを体験してください。"
 

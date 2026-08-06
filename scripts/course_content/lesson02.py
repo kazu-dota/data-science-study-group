@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "第2回：scikit-learnと機械学習"
 SUMMARY = "回帰と分類の違いを知り、fitとpredictで2種類の予測モデルを動かします。"
 

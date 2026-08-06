@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 from textwrap import dedent
 
-
 CellSpec = tuple[str, str]
 
 

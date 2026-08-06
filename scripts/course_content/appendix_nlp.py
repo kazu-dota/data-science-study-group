@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "Appendix：手元で動かす自然言語処理"
 SUMMARY = "日本語の短文を数値へ変換し、肯定的・否定的な文を分類します。"
 

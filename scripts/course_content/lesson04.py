@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "第4回：予測モデルを評価する"
 SUMMARY = "未知データで性能を測り、分類と回帰の指標を目的に合わせて読みます。"
 

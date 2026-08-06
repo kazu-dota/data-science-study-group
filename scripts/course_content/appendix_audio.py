@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "Appendix：手元で動かす音声認識"
 SUMMARY = "合成した音の波形から周波数特徴を作り、低音・中音・高音を分類します。"
 

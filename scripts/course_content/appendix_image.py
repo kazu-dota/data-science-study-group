@@ -2,7 +2,6 @@
 
 from course_content.builder import code, markdown
 
-
 TITLE = "Appendix：手元で動かす画像認識"
 SUMMARY = "scikit-learn付属の手書き数字画像を分類します。データのダウンロードは不要です。"
 
