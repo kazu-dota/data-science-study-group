@@ -45,7 +45,7 @@ Optional dependency groups (guarded in the notebooks; base deps always work via 
 
 ```bash
 uv sync --extra chemistry   # rdkit (used only in session 4 part 2 / feature engineering, behind try/except)
-uv sync --extra advanced    # xgboost, optuna (used only in DEEP DIVE/APPENDIX, behind try/except)
+uv sync --extra advanced    # xgboost, optuna (used only in 発展（任意）/追加演習, behind try/except)
 ```
 
 The standard edit → verify loop: edit `build_course_materials.py` → run the build → run
@@ -65,7 +65,7 @@ notebooks.**
   (still keyed by the 15 old folder names, e.g. `07-regression`).
 - `build_notebooks()` — one `write_notebook(folder, notebook(...), deep_dive_cells,
   appendix_cells)` call per old lesson. `notebook(title, question, core_cells)` builds
-  intro + setup + CORE cells and stashes `_title`/`_question`. **`write_notebook` no longer
+  intro + setup + 基本 cells and stashes `_title`/`_question`. **`write_notebook` no longer
   writes a file** — it registers the module (title, question, core cells with intro+setup
   dropped, deep_dive, appendix, meta) into the global `MODULES` dict.
 - `COURSE_GROUPS` — the 5 merged sessions. Each entry has `folder` (one of the five folder
@@ -79,10 +79,9 @@ notebooks.**
   `font_cell(extra)` for plotting cells. Merge helpers: `merged_intro`, `merged_guide`,
   `chapter_heading`, `merged_wrapup`, `mlops_cells`.
 - Each assembled notebook's rendered structure is: merged intro → setup (`find_repo_root`) →
-  `## この回でできるようになること` (merged guide) → per-part [`# パートN：…` → CORE → DEEP
-  DIVE → APPENDIX] → (MLOps chapter in session 5) → `## よくある誤り` / `## SELF-STUDY` /
-  `## 振り返りチェック` (merged wrap-up). CORE = sync content; DEEP DIVE = advanced;
-  APPENDIX = optional heavier self-study code.
+  `## この回で扱うこと` (merged guide) → per-part [`# パートN：…` → 基本 → 発展（任意）
+  → 追加演習（任意）] → (MLOps chapter in session 5) → `## よくある誤り` / `## 自習` /
+  `## 振り返りチェック` (merged wrap-up).
 - `main()` runs `build_notebooks()` then `assemble_courses()`.
 
 ### Two generator gotchas that will bite you
@@ -94,8 +93,8 @@ notebooks.**
    fix used throughout is `dedent("""...{x}...""").format(x=...)`. `font_cell` exists for the
    same reason (it dedents the font snippet and the extra code separately, then concatenates).
 
-2. **Cells within a lesson share one kernel namespace.** APPENDIX/DEEP DIVE cells rely on
-   variables and imports defined in earlier CORE cells (`df`, `X_train`, `model`, `features`,
+2. **Cells within a lesson share one kernel namespace.** 追加演習/発展（任意） cells rely on
+   variables and imports defined in earlier 基本 cells (`df`, `X_train`, `model`, `features`,
    `pd`, `plt`, …). When adding cells, keep this continuity in mind, and keep every cell
    runnable on **base deps only** — anything needing `rdkit`/`xgboost`/`optuna` must be inside
    a `try/except ImportError` with a scikit-learn fallback, or `validate_materials.py --execute`
@@ -110,8 +109,8 @@ notebooks.**
 ## Validation contract (`scripts/validate_materials.py`)
 
 `validate_files()` asserts: exactly 5 notebooks; each has ≥60 cells and ≥20 code cells; each
-contains the required section headings (`## この回でできるようになること`, `## DEEP DIVE`,
-`## APPENDIX（任意・追加演習）`, `## よくある誤り`, `## SELF-STUDY`, `## 振り返りチェック`)
+contains the required section headings (`## この回で扱うこと`, `## 発展（任意）`,
+`## 追加演習（任意）`, `## よくある誤り`, `## 自習`, `## 振り返りチェック`)
 plus the per-part chapter headings (`# パート1：`, `# パート2：`, `# パート3：`); and cell IDs
 are present and unique. `validate_data()` pins the dataset invariants (420 rows,
 train 315 / test 105, `active` ∈ {0,1}, submission columns, id alignment). `validate_relative_links()`

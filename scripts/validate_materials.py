@@ -19,14 +19,14 @@ def validate_files() -> list[Path]:
     notebooks = sorted((ROOT / "lessons").glob("*/lesson.ipynb"))
     assert len(notebooks) == 5, f"Notebookは5本必要です（旧15回を3回ずつ統合）: {len(notebooks)}本"
     required_sections = [
-        "## この回でできるようになること",
+        "## この回で扱うこと",
         "# パート1：",
         "# パート2：",
         "# パート3：",
-        "## DEEP DIVE",
-        "## APPENDIX（任意・追加演習）",
+        "## 発展（任意）",
+        "## 追加演習（任意）",
         "## よくある誤り",
-        "## SELF-STUDY",
+        "## 自習",
         "## 振り返りチェック",
     ]
     for path in notebooks:
@@ -70,7 +70,7 @@ def validate_relative_links() -> None:
     pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
     errors = []
     for markdown_path in ROOT.rglob("*.md"):
-        if any(part in {".git", ".venv", "work"} for part in markdown_path.parts):
+        if any(part in {".git", ".venv", ".uv-cache", "archive", "work"} for part in markdown_path.parts):
             continue
         for target in pattern.findall(markdown_path.read_text(encoding="utf-8")):
             if target.startswith(("http://", "https://", "#", "mailto:")):

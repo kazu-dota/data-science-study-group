@@ -2,7 +2,7 @@
 
 各フォルダには、進行を示す`README.md`と、上から順に実行できる日本語の`lesson.ipynb`があります。Notebookは`workspace`へコピーしてから変更します。
 
-この勉強会は**全5回**です（旧カリキュラムの3回分を1回にまとめ、各回を長め・自己完結にしています）。各`lesson.ipynb`は**コードセルごとに解説**が付き、**パート1〜3**（第5回はMLOpsのパート4も）で構成され、`CORE`（本線）・`DEEP DIVE`（発展）・`APPENDIX`（任意の重めの追加コード）を含みます。1回で全部を終える必要はありません。
+この勉強会は**全5回**です。各`lesson.ipynb`はパート1〜3（第5回はパート4まで）で構成します。まず「基本」と「演習」を進め、「発展（任意）」と「追加演習（任意）」は余裕がある場合だけ取り組みます。
 
 「フォルダ」列を押すと、その回の教材フォルダへ直接移動できます。
 
@@ -14,7 +14,7 @@
 | 4 | モデルを比較し、特徴量と実験で改善する | [04-compare-and-improve](04-compare-and-improve/) | [README](04-compare-and-improve/README.md) | [開く](04-compare-and-improve/lesson.ipynb) |
 | 5 | 提出から運用・監視・再学習（MLOps）へ | [05-ship-and-operate](05-ship-and-operate/) | [README](05-ship-and-operate/README.md) | [開く](05-ship-and-operate/lesson.ipynb) |
 
-各回が旧カリキュラムのどの回に対応するかは、[全5回の進め方](../docs/course-plan.md)を参照してください。
+各回の内容と時間配分は、[全5回の進め方](../docs/course-plan.md)を参照してください。
 
 ## 講師向け
 

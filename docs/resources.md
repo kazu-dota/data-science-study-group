@@ -65,7 +65,7 @@
 
 ## 第2回：データを見て、問いを立て、評価を正しく設計する
 
-### パート1：データ探偵
+### パート1：分布・欠損・外れ値を確認する
 
 **日本語・受講者向け**
 
@@ -147,7 +147,7 @@
 
 ## 第4回：モデルを比較し、特徴量と実験で改善する
 
-### パート1：モデル対決
+### パート1：複数のモデルを同じ条件で比較する
 
 **日本語・受講者向け**
 
@@ -208,7 +208,7 @@ RDKitは初心者全員の必須操作にはしない。講師が計算済みの
 
 **日本語・受講者向け**
 
-- このリポジトリの第5回パート2の「実験ログ」を主教材にする。5人が日本語で変更点、検証結果、気づきを1行ずつ残す。
+- このリポジトリの第5回パート2の「実験ログ」を主教材にする。5人が日本語で変更点、検証結果、分かったことを1行ずつ残す。
 - [『Kaggleで勝つデータ分析の技術』](https://gihyo.jp/book/2019/978-4-297-10843-4) — バリデーションと特徴量の考え方を深めたい人向け。購入は任意で、コードは現行Notebookを使う。
 
 **英語・任意**
@@ -217,7 +217,7 @@ RDKitは初心者全員の必須操作にはしない。講師が計算済みの
 - [Kaggle Learn: Feature Engineering](https://www.kaggle.com/learn/feature-engineering) — 特徴量案を探す。
 - [Kaggle Learn: Machine Learning Explainability](https://www.kaggle.com/learn/machine-learning-explainability) — 重要度と個別予測の確認に使う。
 
-### パート3：Show & Tellと自社データへの橋渡し
+### パート3：結果を共有し、自社データで試す準備をする
 
 **日本語・受講者向け**
 
@@ -245,11 +245,11 @@ RDKitは初心者全員の必須操作にはしない。講師が計算済みの
 
 ## 任意の発展ライブラリ
 
-一部の`DEEP DIVE`は、次の任意ライブラリがあれば追加で試せます。未導入でもscikit-learnの代替で本編は完走できます。
+一部の`発展（任意）`は、次の任意ライブラリがあれば追加で試せます。未導入でもscikit-learnの代替で本編は完走できます。
 
 - 使う場合のみ `uv sync --extra advanced` を実行する（`xgboost`、`optuna`）。
 - [XGBoost Documentation](https://xgboost.readthedocs.io/) — 第4回パート1のモデル比較で、勾配ブースティング専用実装を任意で追加する。
-- [Optuna Documentation](https://optuna.readthedocs.io/) — 第4回パート3の改善サイクルで、ランダム探索の代わりにベイズ的な探索を任意で試す。
+- [Optuna Documentation](https://optuna.readthedocs.io/) — 第4回パート3の改善実験で、ランダム探索の代わりにベイズ的な探索を任意で試す。
 - [scikit-learn: HistGradientBoosting](https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting) — 上記が無い環境の標準的な代替。
 
 ## Udemyの扱い
