@@ -157,6 +157,17 @@
 
 確認すること：木の深さを増やしたとき、学習データと検証データの成績がどう変わるか書きます。
 
+### 事前：学習曲線と複雑さを読む（約45分）
+
+資料：[scikit-learn MOOC「Selecting the best model」](https://inria.github.io/scikit-learn-mooc/overfit/overfit_module_intro.html)
+
+- ここから：`Validation and learning curves`
+- ここまで：`Bias versus variance trade-off`
+- `Exercise M2.01`を行い、`Wrap-up quiz 2`へ回答します。
+
+確認すること：学習データと検証データの成績について、木が浅すぎる場合、深すぎる場合、
+データを増やした場合の変化を3つの小さな図にします。
+
 ### 事前：木を組み合わせる（約60分）
 
 資料：[scikit-learn MOOC「Ensemble of models」](https://inria.github.io/scikit-learn-mooc/ensemble/ensemble_module_intro.html)
@@ -185,6 +196,9 @@
 [XGBoost「Introduction to Boosted Trees」](https://xgboost.readthedocs.io/en/stable/tutorials/model.html)の
 `Elements of Supervised Learning`から`Decision Tree Ensembles`までを読みます。
 数式の導出は必須ではありません。損失とモデルの複雑さを同時に考える点を確認します。
+
+修了条件：決定木の深さごとに学習F1と検証F1を記録し、過学習・未学習を判断します。
+そのうえで、決定木、Random Forest、GBDTから用途に合う1つを、性能と処理時間の両方から選びます。
 
 ## 第4回：予測モデルの評価
 
