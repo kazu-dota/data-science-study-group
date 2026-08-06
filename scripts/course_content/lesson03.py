@@ -7,7 +7,7 @@ SUMMARY = "決定木、Random Forest、GBDTを同じデータで動かし、予�
 
 CELLS = [
     external_study(3),
-    markdown("## 木を組み合わせるモデル\n\n- **決定木**：条件分岐を1本作る\n- **Random Forest**：異なる決定木を並列に作り、多数決する\n- **GBDT**：前の木が間違えた部分を、次の木が順番に補う"),
+    markdown("## 学習の流れ\n\n1. 1本の決定木が条件分岐を作る\n2. 木の深さと過学習の関係を見る\n3. Random ForestとGBDTの組み合わせ方を比べる\n4. 精度だけでなく学習・予測時間も比べる\n5. GBDTの学習率と木の本数を調べる"),
     code(
         """
         import time
@@ -28,7 +28,7 @@ CELLS = [
         )
         """
     ),
-    markdown("## 3モデルを同じ条件で比べる\n\n欠損補完、学習データ、検証データ、評価指標をそろえます。"),
+    markdown("## 3モデルを同じ条件で比べる\n\n欠損補完、学習・検証データ、評価指標をそろえます。学習F1との差と処理時間も記録します。"),
     code(
         """
         models = {
@@ -43,12 +43,37 @@ CELLS = [
             model = make_pipeline(SimpleImputer(strategy="median"), estimator)
             start = time.perf_counter()
             model.fit(X_train, y_train)
-            elapsed = time.perf_counter() - start
+            fit_seconds = time.perf_counter() - start
+            start = time.perf_counter()
             prediction = model.predict(X_valid)
-            rows.append({"モデル": name, "F1": f1_score(y_valid, prediction), "学習秒": elapsed})
+            predict_seconds = time.perf_counter() - start
+            rows.append({
+                "モデル": name,
+                "学習F1": f1_score(y_train, model.predict(X_train)),
+                "検証F1": f1_score(y_valid, prediction),
+                "学習秒": fit_seconds,
+                "予測秒": predict_seconds,
+            })
             fitted_models[name] = model
 
-        pd.DataFrame(rows).sort_values("F1", ascending=False).round(3)
+        pd.DataFrame(rows).sort_values("検証F1", ascending=False).round(3)
+        """
+    ),
+    markdown("## 木の深さと過学習\n\n浅すぎる木は関係を捉えきれず、深すぎる木は学習データへ合わせすぎます。両方のF1を並べて差を見ます。"),
+    code(
+        """
+        depth_rows = []
+        for depth in [1, 2, 3, 4, 6, 10, None]:
+            candidate = make_pipeline(
+                SimpleImputer(strategy="median"),
+                DecisionTreeClassifier(max_depth=depth, random_state=42),
+            ).fit(X_train, y_train)
+            depth_rows.append({
+                "max_depth": str(depth),
+                "学習F1": f1_score(y_train, candidate.predict(X_train)),
+                "検証F1": f1_score(y_valid, candidate.predict(X_valid)),
+            })
+        pd.DataFrame(depth_rows).round(3)
         """
     ),
     markdown("## GBDTの予測確率を見る\n\n0か1だけでなく、活性と判断した強さを0〜1の確率で確認します。"),
@@ -94,6 +119,6 @@ CELLS = [
             print("XGBoostは未導入です。標準のGBDTだけで本編は完了しています。")
         """
     ),
-    markdown("## 演習\n\nGBDTの`learning_rate`か`max_iter`を1つだけ変え、F1と学習時間を記録してください。"),
-    markdown("## 振り返り\n\n1. Random ForestとGBDTは木をどう組み合わせるか\n2. GBDTの`learning_rate`は何を変えるか\n3. 複雑なモデルが常に良いとは限らない理由は何か"),
+    markdown("## 演習\n\n決定木の深さを1つ選び、学習F1と検証F1から理由を説明します。次に、GBDTの`learning_rate`か`max_iter`を1つだけ変え、F1と学習時間を記録してください。"),
+    markdown("## 到達確認\n\n1. 木の深さと過学習・未学習の関係を説明できるか\n2. Random ForestとGBDTで木を作る順番が違うことを説明できるか\n3. 検証F1、学習時間、予測時間から用途に合うモデルを選べるか\n4. `learning_rate`と`max_iter`を組み合わせて考えられるか"),
 ]
