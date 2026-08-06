@@ -2,6 +2,7 @@
 
 最初に[Quickstart](../quickstart.ipynb)を動かしてから、第1回へ進みます。
 各Notebookは上から順に実行できます。
+Notebookの前後に[外部資料の指定範囲](../docs/resources.md)を読み、確認問題と追加演習にも取り組みます。
 
 | 回 | 内容 | Notebook |
 |---:|---|---|
