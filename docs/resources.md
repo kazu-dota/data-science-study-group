@@ -183,3 +183,50 @@ F1が最大のしきい値と、損失が最小のしきい値が一致するか
 [総務省統計局「社会人のためのデータサイエンス入門」](https://www.stat.go.jp/dss/online01.html)の
 第2週`統計学の基礎`と第3週`データの見方と表し方`を受講します。
 外部サイトへの登録と開講期間の確認が必要なため、本編の必須にはしません。
+
+## 第5回：性能を向上させる
+
+### 事前：特徴量を見直す（約60分）
+
+資料：[Google Machine Learning Crash Course「Working with numerical data」](https://developers.google.com/machine-learning/crash-course/numerical-data)
+
+- ここから：`How a model ingests data using feature vectors`
+- ここまで：`Qualities of good numerical features`
+- `Normalization`、`Binning`、`Missing data`を含めます。
+- 各ページの`Check your understanding`へ回答します。
+
+確認すること：欠損補完、外れ値処理、標準化、対数変換、区間化について、
+必要になるデータの形と、木モデル・線形モデルへの影響を整理します。
+
+### 事前：設定探索を正しく評価する（約60分）
+
+資料：[scikit-learn MOOC「Hyperparameter tuning」](https://inria.github.io/scikit-learn-mooc/tuning/parameter_tuning_module_intro.html)
+
+1. ここから：`Set and get hyperparameters in scikit-learn`
+2. `Exercise M3.01`を行います。
+3. ここから：`Hyperparameter tuning by grid-search`
+4. ここまで：`Evaluation and hyperparameter tuning`
+5. `Exercise M3.02`を行い、解答は実行後に確認します。
+
+確認すること：モデルのパラメータとハイパーパラメータ、Grid SearchとRandomized Search、
+探索用スコアと最終確認用スコアの違いを書きます。
+
+### 復習：探索と評価を分ける（約30分）
+
+[scikit-learn MOOC「Evaluating model performance」](https://inria.github.io/scikit-learn-mooc/evaluation/evaluation_module_intro.html)の
+`Nested cross-validation`から`Quiz M7.03`までを読みます。
+
+追加演習：同じ検証データで設定を10通り、100通り試した結果を比べます。
+試行回数が増えるほど、最良スコアをそのまま最終性能と見なせない理由を説明します。
+
+### 復習：重要度と再現性（約45分）
+
+1. [scikit-learn「Permutation feature importance」](https://scikit-learn.org/stable/modules/permutation_importance.html)
+   - ここから：`Outline of the permutation importance algorithm`
+   - ここまで：`Misleading values on strongly correlated features`
+2. [scikit-learn「Common pitfalls」](https://scikit-learn.org/stable/common_pitfalls.html)
+   - ここから：`Controlling randomness`
+   - ここまで：冒頭の`Recommendation summary`
+
+追加演習：変更内容、乱数、交差検証、平均F1、標準偏差、実行時間を1行にした実験表を作ります。
+重要度が低い列を「原因ではない」と断定できない理由も書きます。
