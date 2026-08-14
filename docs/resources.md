@@ -20,24 +20,25 @@
 
 日本語の共通教材は、次の3つを軸にします。
 
-- [東京大学「Pythonプログラミング入門」](https://utokyo-ipp.github.io/) — Python、pandas、scikit-learnまで日本語で参照できる。第1回〜第3回で必要な節だけ使う。
+- [東京大学「Pythonプログラミング入門」](https://utokyo-ipp.github.io/) — Python、pandas、scikit-learnまで日本語で参照できる。第1回〜第2回で必要な節だけ使う。
 - [総務省統計局「データサイエンス・オンライン講座」](https://www.stat.go.jp/dss/online_index.html) — 統計の見方とデータ活用の入口。登録型講座は開講時期を確認する。
 - [機械学習帳](https://chokkan.github.io/mlnote/) — 回帰・分類・モデル選択を、Pythonの実行例と一緒に学べる。数式は全員の必修にせず、図と実行例を中心に使う。
 
-全5回はそれぞれ3つのパート（第5回だけ4つ）に分かれます。以下は旧15回教材の各回に対応する外部教材の一覧で、各回のパートごとにまとめています。この一覧では、`日本語・受講者向け`と`英語・講師用`を分けて記載します。Kaggle、RDKit、scikit-learnの最新仕様など日本語の一次資料が少ない部分は、リポジトリ内に日本語の橋渡し解説を用意します。
+全5回はそれぞれ3つのパート（第1回だけ4つ）に分かれます。以下は各回のパートごとにまとめた外部教材の一覧です。この一覧では、`日本語・受講者向け`と`英語・講師用`を分けて記載します。RDKit、scikit-learnの最新仕様など日本語の一次資料が少ない部分は、リポジトリ内に日本語の橋渡し解説を用意します。
 
-## 第1回：Pythonとデータに触れ、まず予測を動かす
+## 第1回：データ分析の準備
 
-### パート1：予測モデルを動かしてみる
+### パート1：Python環境とuv、Gitの基礎
 
 **日本語・受講者向け**
 
+- [このリポジトリ「Python環境とGitの基礎（任意）」](environment-and-git-basics.md) — uv・Condaの違い、Gitの基本用語を日本語でまとめた主教材。
 - [GitHub Docs「GitHub アカウントの始め方」](https://docs.github.com/ja/get-started/onboarding/getting-started-with-your-github-account) — README、フォルダ、履歴の画面を怖がらず見られることが目標。アカウント作成や共同開発は必須にしない。
 
 **英語・講師用**
 
 - [uv: Using uv with Jupyter](https://docs.astral.sh/uv/guides/integration/jupyter/) — 講師の環境構築用リファレンス。
-- [scikit-learn: Getting Started](https://scikit-learn.org/stable/getting_started.html) — `fit`、`predict`、Pipelineの全体像。受講者はコード例を見るだけでよい。
+- [Pro Git（日本語版）](https://git-scm.com/book/ja/v2) — Gitをもっと知りたい参加者向けの体系的な参考書。
 
 ### パート2：Pythonを読み、Copilotと少し変える
 
@@ -63,9 +64,7 @@
 - [pandas: 10 minutes to pandas](https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html) — `DataFrame`、選択、欠損、groupby、CSV入出力の公式リファレンス。
 - [Kaggle Learn: Pandas](https://www.kaggle.com/learn/pandas) — Lesson 1～3を経験者の任意演習にする。
 
-## 第2回：データを見て、問いを立て、評価を正しく設計する
-
-### パート1：分布・欠損・外れ値を確認する
+### パート4：分布・欠損・外れ値を確認する
 
 **日本語・受講者向け**
 
@@ -78,7 +77,9 @@
 - [seaborn User Guide and Tutorial](https://seaborn.pydata.org/tutorial.html) — 分布、カテゴリ、変数間関係の図を探す公式リファレンス。
 - [pandas User Guide](https://pandas.pydata.org/pandas-docs/stable/user_guide/index.html) — missing dataとplottingの節を講師用に使う。
 
-### パート2：何を、いつ、何のために予測するか
+## 第2回：予測モデルを作成
+
+### パート1：何を、いつ、何のために予測するか
 
 **日本語・受講者向け**
 
@@ -91,22 +92,7 @@
 - [Kaggle Learn: Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning) — Lesson 1「How Models Work」とLesson 2「Basic Data Exploration」。
 - [scikit-learn: Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html) — `DummyClassifier`と`DummyRegressor`を含むベースラインの講師用リファレンス。
 
-### パート3：モデルは本当に当たっているか
-
-**日本語・受講者向け**
-
-- [機械学習帳「モデル選択と正則化」](https://chokkan.github.io/mlnote/regression/03regularization.html) — 訓練誤差と汎化誤差、モデル選択の図を中心に使う。数式の導出は任意。
-- [第2回（検証・リークのパート）](../lessons/02-look-frame-validate/README.md) — 学習用・検証用・テスト用の役割と、リークという「近道」を先にイメージで確認する。
-
-**英語・講師用**
-
-- [Kaggle Learn: Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning) — Lesson 4「Model Validation」とLesson 5「Underfitting and Overfitting」。
-- [scikit-learn: Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — inconsistent preprocessingとdata leakage。
-- [scikit-learn: Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — グループ・時系列・通常のランダム分割の違いを講師が参照する。
-
-## 第3回：回帰・分類・前処理Pipelineでモデルを作る
-
-### パート1：数値を予測する—回帰
+### パート2：数値を予測する—回帰
 
 **日本語・受講者向け**
 
@@ -119,35 +105,7 @@
 - [scikit-learn: Linear Models](https://scikit-learn.org/stable/modules/linear_model.html) — 線形回帰、Ridgeの講師用リファレンス。
 - [scikit-learn: Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics) — MAE、MSE、R²の定義を確認する。
 
-### パート2：クラスを予測する—分類
-
-**日本語・受講者向け**
-
-- [機械学習帳「線形二値分類」](https://chokkan.github.io/mlnote/classification/01binary.html) — スコア、確率、判定の関係を実行例で見る。数式の導出は任意。
-- [東京大学「Pythonプログラミング入門」7-2 scikit-learnライブラリ](https://utokyo-ipp.github.io/) — 「教師あり学習・分類の例」を短い復習に使う。
-
-**英語・講師用**
-
-- [scikit-learn: Classification metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics) — 混同行列、適合率、再現率、F1の定義を確認する。
-- [scikit-learn MOOC](https://inria.github.io/scikit-learn-mooc/) — Evaluating model performanceのClassification節。
-- [scikit-learn: Linear Models](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression) — ロジスティック回帰の講師用リファレンス。
-
-### パート3：前処理をPipelineにまとめる
-
-**日本語・受講者向け**
-
-- このリポジトリの第3回パート3のNotebookを主教材にする。数値列とカテゴリ列が別々の入口を通り、最後に1つのモデルへ合流する流れを日本語図で確認してからコードを読む。
-- [『Pythonによるあたらしいデータ分析の教科書 第3版』](https://www.shoeisha.co.jp/book/detail/9784798192291) — scikit-learnを使う章から、前処理とモデル構築の部分を参考にする。購入は任意。
-
-**英語・講師用**
-
-- [Kaggle Learn: Intermediate Machine Learning](https://www.kaggle.com/learn/intermediate-machine-learning) — Missing Values、Categorical Variables、Pipelinesを抜粋する。
-- [scikit-learn: Getting Started](https://scikit-learn.org/stable/getting_started.html) — Pipelineが前処理と予測器をまとめ、リーク防止に役立つ例。
-- [scikit-learn: Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — API確認用。
-
-## 第4回：モデルを比較し、特徴量と実験で改善する
-
-### パート1：複数のモデルを同じ条件で比較する
+### パート3：複数のモデルを同じ条件で比較する
 
 **日本語・受講者向け**
 
@@ -160,7 +118,64 @@
 - [scikit-learn: Ensemble methods](https://scikit-learn.org/stable/modules/ensemble.html) — Random ForestとGradient Boostingの講師用リファレンス。
 - [Kaggle Learn: Intermediate Machine Learning](https://www.kaggle.com/learn/intermediate-machine-learning) — XGBoostは発展課題として扱い、本編の必須にはしない。
 
-### パート2：化学の知識を特徴量にする
+## 第3回：モデルの評価方法
+
+### パート1：モデルは本当に当たっているか
+
+**日本語・受講者向け**
+
+- [機械学習帳「モデル選択と正則化」](https://chokkan.github.io/mlnote/regression/03regularization.html) — 訓練誤差と汎化誤差、モデル選択の図を中心に使う。数式の導出は任意。
+- [第3回（検証・リークのパート）](../lessons/03-evaluate-models/README.md) — 学習用・検証用・テスト用の役割と、リークという「近道」を先にイメージで確認する。
+
+**英語・講師用**
+
+- [Kaggle Learn: Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning) — Lesson 4「Model Validation」とLesson 5「Underfitting and Overfitting」。
+- [scikit-learn: Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — inconsistent preprocessingとdata leakage。
+- [scikit-learn: Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — グループ・時系列・通常のランダム分割の違いを講師が参照する。
+
+### パート2：クラスを予測する—分類（AUC・Loglossの違い）
+
+**日本語・受講者向け**
+
+- [機械学習帳「線形二値分類」](https://chokkan.github.io/mlnote/classification/01binary.html) — スコア、確率、判定の関係を実行例で見る。数式の導出は任意。
+- [東京大学「Pythonプログラミング入門」7-2 scikit-learnライブラリ](https://utokyo-ipp.github.io/) — 「教師あり学習・分類の例」を短い復習に使う。
+
+**英語・講師用**
+
+- [scikit-learn: Classification metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics) — 混同行列、適合率、再現率、F1、log_lossの定義を確認する。
+- [scikit-learn MOOC](https://inria.github.io/scikit-learn-mooc/) — Evaluating model performanceのClassification節。
+- [scikit-learn: Linear Models](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression) — ロジスティック回帰の講師用リファレンス。
+- [scikit-learn: Probability calibration](https://scikit-learn.org/stable/modules/calibration.html) — 較正とBrierスコア、Loglossの関係を確認する講師用リファレンス。
+
+### パート3：改善実験を1つずつ行う
+
+**日本語・受講者向け**
+
+- [全5回の進め方「改善実験を1つずつ行う」](course-plan.md#パート3改善実験を1つずつ行う) — 「1つ変える→同じ条件で評価→記録する」の日本語図を実験の型として使う。
+- [機械学習帳「モデル選択と正則化」](https://chokkan.github.io/mlnote/regression/03regularization.html) — 検証データによるモデル選択の考え方を補う。数式の導出は任意。
+
+**英語・講師用**
+
+- [scikit-learn: Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — `cross_val_score`と、分割によるスコアのばらつき。
+- [Kaggle Learn: Machine Learning Explainability](https://www.kaggle.com/learn/machine-learning-explainability) — Lesson 1「Use Cases」とLesson 2「Permutation Importance」。SHAPは発展扱い。
+- [scikit-learn: Model selection and evaluation](https://scikit-learn.org/stable/model_selection.html) — チューニング、評価指標、validation curveの講師用リファレンス。
+
+## 第4回：特徴量エンジニアリングの紹介
+
+### パート1：前処理をPipelineにまとめる
+
+**日本語・受講者向け**
+
+- このリポジトリの第4回パート1のNotebookを主教材にする。数値列とカテゴリ列が別々の入口を通り、最後に1つのモデルへ合流する流れを日本語図で確認してからコードを読む。
+- [『Pythonによるあたらしいデータ分析の教科書 第3版』](https://www.shoeisha.co.jp/book/detail/9784798192291) — scikit-learnを使う章から、前処理とモデル構築の部分を参考にする。購入は任意。
+
+**英語・講師用**
+
+- [Kaggle Learn: Intermediate Machine Learning](https://www.kaggle.com/learn/intermediate-machine-learning) — Missing Values、Categorical Variables、Pipelinesを抜粋する。
+- [scikit-learn: Getting Started](https://scikit-learn.org/stable/getting_started.html) — Pipelineが前処理と予測器をまとめ、リーク防止に役立つ例。
+- [scikit-learn: Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — API確認用。
+
+### パート2：特徴量を作る
 
 **日本語・受講者向け**
 
@@ -177,57 +192,55 @@
 
 RDKitは初心者全員の必須操作にはしない。講師が計算済みの記述子表も用意し、環境トラブルで本題が止まらないようにする。
 
-### パート3：改善実験を小さく回す
+### パート3：特徴量を選ぶ
 
 **日本語・受講者向け**
 
-- [全5回の進め方「改善実験を小さく回す」](course-plan.md#パート3改善実験を小さく回す) — 「1つ変える→同じ条件で評価→記録する」の日本語図を実験の型として使う。
-- [機械学習帳「モデル選択と正則化」](https://chokkan.github.io/mlnote/regression/03regularization.html) — 検証データによるモデル選択の考え方を補う。数式の導出は任意。
+- このリポジトリの第4回パート3のNotebookを主教材にする。OOF target encodingとRFECVを、日本語の図と実行例で確認する。
+- [機械学習帳](https://chokkan.github.io/mlnote/) — 特徴量選択と正則化の関係を深めたい人向け。全員での通読はしない。
 
 **英語・講師用**
 
-- [scikit-learn: Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — `cross_val_score`と、分割によるスコアのばらつき。
-- [Kaggle Learn: Machine Learning Explainability](https://www.kaggle.com/learn/machine-learning-explainability) — Lesson 1「Use Cases」とLesson 2「Permutation Importance」。SHAPは発展扱い。
-- [scikit-learn: Model selection and evaluation](https://scikit-learn.org/stable/model_selection.html) — チューニング、評価指標、validation curveの講師用リファレンス。
+- [scikit-learn: Feature selection](https://scikit-learn.org/stable/modules/feature_selection.html) — `RFECV`を含む特徴量選択手法の講師用リファレンス。
+- [Kaggle Learn: Machine Learning Explainability](https://www.kaggle.com/learn/machine-learning-explainability) — Permutation Importanceの復習に使う。
 
-## 第5回：提出から運用・監視・再学習（MLOps）へ
+## 第5回：転移学習・再学習・ニューラルネットワークモデルの紹介
 
-### パート1：Kaggleに入って最初の提出を作る
-
-**日本語・受講者向け**
-
-- このリポジトリの第5回パート1のNotebookと日本語チェックリストを主教材にする。問題文、列の意味、評価指標、提出形式を1画面ずつ日本語で案内する。
-- [Kaggle: Titanic — Machine Learning from Disaster](https://www.kaggle.com/competitions/titanic) — 英語画面だが、`Overview`、`Data`、`Submit Predictions`の3か所だけを講師と一緒に見る。
-
-**英語・任意**
-
-- [Kaggle Learn: Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning) — Lesson 7「Machine Learning Competitions」。
-- [Kaggle: House Prices](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques) — 参加者が回帰を強く希望した場合の代替候補。列数と欠損が多いため、Titanicより難しい。
-
-### パート2：Kaggle改善会
+### パート1：ニューラルネットワークを試す
 
 **日本語・受講者向け**
 
-- このリポジトリの第5回パート2の「実験ログ」を主教材にする。5人が日本語で変更点、検証結果、分かったことを1行ずつ残す。
-- [『Kaggleで勝つデータ分析の技術』](https://gihyo.jp/book/2019/978-4-297-10843-4) — バリデーションと特徴量の考え方を深めたい人向け。購入は任意で、コードは現行Notebookを使う。
-
-**英語・任意**
-
-- [Kaggle: Titanic Code](https://www.kaggle.com/competitions/titanic/code) — 他者のNotebookは、まず自分たちのベースラインを作った後で読む。
-- [Kaggle Learn: Feature Engineering](https://www.kaggle.com/learn/feature-engineering) — 特徴量案を探す。
-- [Kaggle Learn: Machine Learning Explainability](https://www.kaggle.com/learn/machine-learning-explainability) — 重要度と個別予測の確認に使う。
-
-### パート3：結果を共有し、自社データで試す準備をする
-
-**日本語・受講者向け**
-
-- このリポジトリの「自社テーマ1枚シート」を主教材にする。目的、予測時点、使える列、評価方法、利用場面を日本語で埋める。
-- [総務省統計局「出来る人のビジネス活用術」](https://www.stat.go.jp/dss/online_index.html) — 分析を業務で使う視点を広げる任意資料。
+- このリポジトリの第5回パート1のNotebookを主教材にする。「複雑なモデルが必ず勝つとは限らない」という結論を、自分の手元の数字で確認する。
+- [機械学習帳](https://chokkan.github.io/mlnote/) — ニューラルネットワークの位置づけを、これまで学んだ線形モデル・木モデルと比較する形で参照する。
 
 **英語・講師用**
 
-- [scikit-learn MOOC: Concluding remarks](https://inria.github.io/scikit-learn-mooc/concluding_remarks.html) — 機械学習は課題解決全体の一部である、というまとめに使う。
-- [scikit-learn: Common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html) — 自社データで再発しやすいリーク、前処理、乱数の確認表として使う。
+- [scikit-learn: Neural network models (supervised)](https://scikit-learn.org/stable/modules/neural_networks_supervised.html) — `MLPClassifier`/`MLPRegressor`の講師用リファレンス。
+- [Kaggle Learn: Intro to Deep Learning](https://www.kaggle.com/learn/intro-to-deep-learning) — ニューラルネットワークの基礎概念を知りたい参加者向け。本編の必須にはしない。
+
+### パート2：転移学習を知る
+
+**日本語・受講者向け**
+
+- このリポジトリの第5回パート2のNotebookを主教材にする（コードなし、考え方と実例の紹介）。
+- [機械学習帳](https://chokkan.github.io/mlnote/) — 事前学習・ファインチューニングの前提となる、モデルの汎化に関する考え方を補う。
+
+**英語・講師用**
+
+- [Hugging Face: What is transfer learning?](https://huggingface.co/docs/transformers/en/training) — 事前学習済みモデルのファインチューニングの一般的な流れを確認する講師用リファレンス。
+- 分子表現学習など化学分野の実例は、開講時点の文献・記事から講師が最新の1〜2件を選び直す（更新の速い分野のため、固定リンクにしない）。
+
+### パート3：モデルを運用する（永続化・監視・再学習）
+
+**日本語・受講者向け**
+
+- このリポジトリの第5回パート3のNotebookを主教材にする。永続化、モデルカード、監視、再学習のループを日本語の図とコードで確認する。
+
+**英語・講師用**
+
+- [scikit-learn: Model persistence](https://scikit-learn.org/stable/model_persistence.html) — `joblib`によるモデル保存・復元の公式リファレンス。
+- [Google Cloud: What is MLOps?](https://cloud.google.com/discover/what-is-mlops) — 学習・提供・監視・再学習のループを俯瞰する講師用の参考記事。
+- [scikit-learn: Novelty and Outlier Detection](https://scikit-learn.org/stable/modules/outlier_detection.html) — 適用領域・異常検知の考え方を深めたい場合の講師用リファレンス。
 
 ## 書籍候補
 
@@ -237,19 +250,18 @@ RDKitは初心者全員の必須操作にはしない。講師が計算済みの
 
 ### pandasを深く使いたい人向け
 
-- [『Pythonによるデータ分析入門 第3版』](https://www.oreilly.co.jp/books/9784814400195/) — pandas開発者による詳細な解説。600ページを超えるため、通読課題にはせず、第3～4回の発展資料とする。
+- [『Pythonによるデータ分析入門 第3版』](https://www.oreilly.co.jp/books/9784814400195/) — pandas開発者による詳細な解説。600ページを超えるため、通読課題にはせず、第1回・第4回の発展資料とする。
 
-### Kaggle・講師向け
+### Kaggleを試したい人向け
 
-- [『Kaggleで勝つデータ分析の技術』](https://gihyo.jp/book/2019/978-4-297-10843-4) — バリデーション、特徴量、チューニングの考え方を参照する。2019年刊のため、コードやライブラリ仕様は現行公式ドキュメントで確認する。
+- [『Kaggleで勝つデータ分析の技術』](https://gihyo.jp/book/2019/978-4-297-10843-4) — バリデーション、特徴量、チューニングの考え方を参照する。2019年刊のため、コードやライブラリ仕様は現行公式ドキュメントで確認する。本編にKaggle実践は含まないため、[任意教材](kaggle-titanic-guide.md)に取り組む人向けの参考書。
 
 ## 任意の発展ライブラリ
 
 一部の`発展（任意）`は、次の任意ライブラリがあれば追加で試せます。未導入でもscikit-learnの代替で本編は完走できます。
 
-- 使う場合のみ `uv sync --extra advanced` を実行する（`xgboost`、`optuna`）。
-- [XGBoost Documentation](https://xgboost.readthedocs.io/) — 第4回パート1のモデル比較で、勾配ブースティング専用実装を任意で追加する。
-- [Optuna Documentation](https://optuna.readthedocs.io/) — 第4回パート3の改善実験で、ランダム探索の代わりにベイズ的な探索を任意で試す。
+- 使う場合のみ `uv sync --extra advanced` を実行する（`xgboost`）。
+- [XGBoost Documentation](https://xgboost.readthedocs.io/) — 第2回パート3のモデル比較で、勾配ブースティング専用実装を任意で追加する。
 - [scikit-learn: HistGradientBoosting](https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting) — 上記が無い環境の標準的な代替。
 
 ## Udemyの扱い
