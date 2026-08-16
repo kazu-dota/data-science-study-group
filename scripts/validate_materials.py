@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def validate_files() -> list[Path]:
     notebooks = sorted((ROOT / "lessons").glob("*/lesson.ipynb"))
-    assert len(notebooks) == 5, f"Notebookは5本必要です（旧15回を3回ずつ統合）: {len(notebooks)}本"
+    assert len(notebooks) == 5, f"Notebookは5本必要です（第1回のみ4パート、他は3パート）: {len(notebooks)}本"
     required_sections = [
         "## この回で扱うこと",
         "# パート1：",
