@@ -93,6 +93,8 @@ Windows、VS Code、`uv`を標準環境とします。GitHubアカウントとGi
 ```powershell
 uv sync
 uv run python scripts/check_environment.py
+uv pip install ipykernel
+ipython kernel install --user --name=kernel-name
 ```
 
 Notebookをブラウザで開く場合は、次を実行します。
