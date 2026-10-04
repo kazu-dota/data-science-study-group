@@ -1,9 +1,8 @@
 """勉強会のローカル環境を確認するスクリプト。"""
 
-from importlib.metadata import version
-from pathlib import Path
 import sys
-
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 
 REQUIRED_PACKAGES = (
     "ipykernel",
@@ -29,7 +28,7 @@ def main() -> int:
     for package in REQUIRED_PACKAGES:
         try:
             installed_version = version(package)
-        except Exception:
+        except PackageNotFoundError:
             missing.append(package)
             print(f"[NG] {package}: 見つかりません")
         else:
